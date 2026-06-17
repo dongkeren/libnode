@@ -4,7 +4,7 @@
     "name": "kungfu-trader",
     "email": "info@kungfu.link"
   },
-  "version": "16.15.0",
+  "version": "22.22.3",
   "description": "Build shared node lib",
   "license": "Apache-2.0",
   "main": "src/js/index.js",
@@ -37,7 +37,7 @@
   "devDependencies": {
     "fs-extra": "^10.0.0",
     "glob": "^7.2.0",
-    "node-addon-api": "^5.0.0",
+    "node-addon-api": "^8.0.0",
     "node-gyp": "^9.0.0",
     "prettier": "^2.6.0",
     "xml-js": "^1.6.11",

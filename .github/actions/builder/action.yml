@@ -1,5 +1,5 @@
 name: Build libnode
-description: Build and upload libnode prebuilt artifacts
+description: Build and upload libnode npm tarball artifacts
 
 runs:
   using: "composite"
@@ -36,4 +36,4 @@ runs:
         # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#github-context
         name: "libnode-${{env.BUILDER_OS}}-${{github.actor}}-${{github.sha}}"
         path: |
-          **/build/stage/*/v*/v*/*.*
+          **/build/stage/npm/*.tgz

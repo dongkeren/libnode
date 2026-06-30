@@ -7,52 +7,29 @@ on:
       - release/v*/v*.*
 
 jobs:
-  publish-aws:
+  build:
     if: ${{ github.event.pull_request.merged }}
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.0
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v6.4.0
-        with:
-          node-version: '24'
-
-      - name: Configure AWS Credentials (CI)
-        uses: aws-actions/configure-aws-credentials@v6.2.1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_CI_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_CI_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Publish Prebuilt to AWS (CI)
-        uses: kungfu-systems/buildchain/actions/publish-prebuilt@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          bucket-staging: 'kungfu-prebuilt-staging'
-          bucket-release: 'kungfu-prebuilt'
-          no-comment: 'true'
-
-      - name: Configure AWS Credentials (User)
-        uses: aws-actions/configure-aws-credentials@v6.2.1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_USER_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_USER_SECRET_ACCESS_KEY }}
-          aws-region: cn-northwest-1
-
-      - name: Publish Prebuilt to AWS (User)
-        uses: kungfu-systems/buildchain/actions/publish-prebuilt@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          bucket-staging: 'kungfu-prebuilt-staging'
-          bucket-release: 'kungfu-prebuilt'
+    uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2
+    with:
+      buildchain-ref: v2
+      runner-preset: kungfu-v4-self-hosted
+      setup-node: true
+      node-version: '24'
+      install-command: node .gyp/buildchain-install.js "${{ vars.KF_NODE_GIT_URL }}" "${{ vars.KF_NODE_REFERENCE }}"
+      require-install: true
+      require-build: true
+      require-verify: true
+      artifact-name: libnode
+      artifact-name-template: '{artifact}-{platform}-{sha}'
+      artifact-paths: |
+        build/stage
+      expected-artifacts-json: >-
+        {"minFiles":1,"minTotalBytes":1}
+      artifact-retention-days: 14
 
   publish-npmjs:
     if: ${{ github.event.pull_request.merged }}
+    needs: [build]
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -66,7 +43,12 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Publish to NPM Packages
-        run: npm publish --access=public
+      - name: Download Artifacts
+        uses: actions/download-artifact@v7.0.0
+        with:
+          path: 'github-artifacts'
+
+      - name: Publish NPM Tarballs
+        run: node .gyp/npm-publish-tarballs.js github-artifacts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUSH_TOKEN }}

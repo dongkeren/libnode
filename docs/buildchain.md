@@ -31,7 +31,7 @@ The configured lifecycle keeps the existing libnode build order:
 1. install JavaScript build helpers with pnpm;
 2. build the embedded Node.js shared library;
 3. build the `link_node` addon;
-4. package the node-pre-gyp prebuilt archive;
+4. package the platform-specific npm tarball under `build/stage/npm`;
 5. check the final diff.
 
 The full lifecycle is intentionally expensive. Release PRs should rely on the
@@ -77,8 +77,12 @@ lifecycleStages: install, build, verify
 ## Release Workflow
 
 Release verification still builds platform artifacts in this repository because
-libnode has platform-specific native outputs. Shared Buildchain v2 actions are
-used for reusable release steps such as publishing prebuilt artifacts.
+libnode has platform-specific native outputs. Those artifacts are npm tarballs:
+one package per supported platform, plus the main package tarball from the
+Linux x64 release build.
 
 Production publishing remains gated by a reviewed PR into the release channel
-and by successful artifact staging.
+and by successful platform package builds. When the release PR is merged,
+`Release - New Version` rebuilds the matrix, publishes platform packages first,
+and publishes the main `@kungfu-tech/libnode` package last so npm optional
+dependency resolution can see the platform packages immediately.

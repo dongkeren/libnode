@@ -24,30 +24,22 @@
     "LICENSE",
     "README.md"
   ],
-  "binary": {
-    "module_name": "link_node",
-    "module_path": "dist/node",
-    "remote_path": "libnode/v{major}/v{version}",
-    "package_name": "libnode-v{version}-{platform}-{arch}-{configuration}.tar.gz",
-    "host": "https://prebuilt.libkungfu.cc"
-  },
   "scripts": {
-    "preinstall": "node .gyp/node-npm-config.js",
-    "install": "node .gyp/node-pre-gyp.js install",
-    "prebuild": "node .gyp/node-npm-config.js",
-    "build": "node .gyp/node-pre-gyp.js build",
-    "clean": "node .gyp/node-pre-gyp.js clean",
+    "build": "node .gyp/node-build.js build",
+    "clean": "node .gyp/node-build.js clean",
     "dist": "node .gyp/node-dist.js",
     "make": "node .gyp/node-make.js",
-    "package": "node .gyp/node-pre-gyp.js package",
+    "package": "node .gyp/node-platform-package.js pack",
+    "package:main": "node .gyp/node-platform-package.js pack-main",
+    "package:platform": "node .gyp/node-platform-package.js pack-platform",
     "prepare-node-source": "node .gyp/node-source-prepare.js",
-    "rebuild": "node .gyp/node-pre-gyp.js rebuild",
+    "rebuild": "node .gyp/node-build.js rebuild",
     "verify-release": "node .gyp/libnode-release-verify.js",
+    "verify-package-source": "node .gyp/node-platform-package.js verify-source",
     "format": "prettier --write --parser typescript .gyp/*.js src/js/*.js"
   },
   "packageManager": "pnpm@11.9.0",
   "dependencies": {
-    "@mapbox/node-pre-gyp": "^2.0.3",
     "sywac": "^1.3.0"
   },
   "devDependencies": {

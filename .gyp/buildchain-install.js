@@ -12,7 +12,6 @@ if (nodeReference) {
 
 async function main() {
   run('corepack', ['pnpm', 'install', '--frozen-lockfile', '--ignore-scripts']);
-  run('node', ['.gyp/node-npm-config.js']);
   run('corepack', ['pnpm', 'prepare-node-source']);
 }
 

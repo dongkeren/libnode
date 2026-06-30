@@ -9,11 +9,9 @@ Install via npm or pnpm:
 npm install @kungfu-tech/libnode
 ```
 
-Be default it downloads prebuilt lib files from a site host by [AWS CN](https://prebuilt.libkungfu.cc).
-If need to use it overseas, use npm config to set it to AWS US before npm install:
-```
-npm config set link_node_binary_host_mirror https://prebuilt.libkungfu.io
-```
+The main package resolves the matching platform package installed through npm
+optional dependencies, such as `@kungfu-tech/libnode-darwin-arm64`,
+`@kungfu-tech/libnode-linux-x64`, or `@kungfu-tech/libnode-win32-x64`.
 
 ### Compile and Link
 
@@ -29,7 +27,7 @@ node -p "require('@kungfu-tech/libnode').include"
 
 ## Build with GitHub Actions
 
-The `Build` and `Release - Verify` workflows run through Kungfu Buildchain and build the Node.js version pinned by `libnode.release.json` and `.gitmodules`.
+The `Build` and `Release - Verify` workflows run through Kungfu Buildchain and build the Node.js version pinned by `libnode.release.json` and `.gitmodules`. Each runner packages its native output as an npm platform tarball under `build/stage/npm`.
 
 For self-hosted runners, set `KF_NODE_GIT_URL` to a local network Git service when available. `KF_NODE_REFERENCE` can also point at a runner-local bare mirror to reduce repeated object transfer. If those variables are not set, the prepare step falls back to the public Node.js GitHub repository.
 

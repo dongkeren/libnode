@@ -29,4 +29,11 @@ node -p "require('@kungfu-trader/libnode').include"
 
 ## Build with GitHub Actions
 
-If you need other versions of Node.js that we don't provide, you can fork [this repo on GitHub](https://github.com/kungfu-trader/libnode) and build with GitHub Actions. There is a workflow named "Build" that can be triggered mannually with an input argument, type the git tag of [node](https://github.com/nodejs/node) that you want to use and go. The result will be uploaded to GitHub Actions when successfully finished.
+If you need other versions of Node.js that we don't provide, you can fork [this repo on GitHub](https://github.com/kungfu-systems/libnode) and build with GitHub Actions. There is a workflow named "Build" that can be triggered manually with an input argument, type the git tag of [node](https://github.com/nodejs/node) that you want to use and go. The result will be uploaded to GitHub Actions when successfully finished.
+
+## Buildchain
+
+This repository uses Buildchain v1 shared actions and declares its local release
+lifecycle in [`buildchain.toml`](buildchain.toml). See
+[`docs/buildchain.md`](docs/buildchain.md) for the libnode-specific release
+notes.

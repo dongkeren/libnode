@@ -3,47 +3,47 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - release/v*.x
+      - release/v*/v*.*
 
 jobs:
   publish-aws:
     if: ${{ github.event.pull_request.merged }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7.0.0
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v6.4.0
         with:
-          node-version: "14"
+          node-version: "22"
           registry-url: "https://npm.pkg.github.com"
           scope: "@kungfu-trader"
 
-      - name: Configure AWS Crendentials (US)
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS Credentials (US)
+        uses: aws-actions/configure-aws-credentials@v6.2.1
         with:
           aws-access-key-id: ${{ secrets.AWS_US_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_US_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Publish Prebuilt to AWS (US)
-        uses: kungfu-trader/action-publish-prebuilt@v2
+        uses: kungfu-systems/buildchain/actions/publish-prebuilt@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           bucket-staging: 'kungfu-prebuilt-staging'
           bucket-release: 'kungfu-prebuilt'
           no-comment: "true"
 
-      - name: Configure AWS Crendentials (CN)
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS Credentials (CN)
+        uses: aws-actions/configure-aws-credentials@v6.2.1
         with:
           aws-access-key-id: ${{ secrets.AWS_CN_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_CN_SECRET_ACCESS_KEY }}
           aws-region: cn-northwest-1
 
       - name: Publish Prebuilt to AWS (CN)
-        uses: kungfu-trader/action-publish-prebuilt@v2
+        uses: kungfu-systems/buildchain/actions/publish-prebuilt@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           bucket-staging: 'kungfu-prebuilt-staging'
@@ -51,15 +51,15 @@ jobs:
 
   publish-github:
     if: ${{ github.event.pull_request.merged }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7.0.0
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v6.4.0
         with:
-          node-version: "14"
+          node-version: "22"
           registry-url: "https://npm.pkg.github.com"
           scope: "@kungfu-trader"
 
@@ -70,15 +70,15 @@ jobs:
   
   publish-npmjs:
     if: ${{ github.event.pull_request.merged }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7.0.0
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v6.4.0
         with:
-          node-version: "14"
+          node-version: "22"
           registry-url: 'https://registry.npmjs.org'
 
       - name: Publish to NPM Packages

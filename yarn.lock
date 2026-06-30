@@ -766,7 +766,7 @@ safe-buffer@~5.2.0:
 
 sax@^1.2.4:
   version "1.2.4"
-  resolved "https://registry.nlark.com/sax/download/sax-1.2.4.tgz"
+  resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz"
   integrity sha1-KBYjTiN4vdxOU1T6tcqold9xANk=
 
 semver@^6.0.0:

@@ -1,10 +1,12 @@
+name: "Build libnode"
+description: "Build and package libnode prebuilt artifacts"
 runs:
   using: "composite"
   steps:
     - name: Setup Node.js environment
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v6.4.0
       with:
-        node-version: "14"
+        node-version: "22"
         registry-url: "https://npm.pkg.github.com"
         scope: "@kungfu-trader"
 
@@ -12,25 +14,27 @@ runs:
       env:
         KF_SKIP_FALLBACK_BUILD: true
       shell: bash
-      run: yarn --network-timeout=5000000 install --frozen-lockfile
+      run: |
+        corepack enable
+        corepack yarn --network-timeout=5000000 install --frozen-lockfile
 
     - name: Make libnode
       shell: bash
       # Workaround for gyp not able to find nasm.exe when run on GitHub Windows runner
-      run: yarn make
+      run: corepack yarn make
 
     - name: Build
       env:
         KF_SKIP_MAKE_LIBNODE: true
       shell: bash
-      run: yarn build
+      run: corepack yarn build
 
     - name: Package
       shell: bash
-      run: yarn package
+      run: corepack yarn package
 
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v6.0.0
       with:
         # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#github-context
         name: "libnode-${{env.BUILDER_OS}}-${{github.actor}}-${{github.sha}}"

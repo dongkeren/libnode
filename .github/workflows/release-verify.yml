@@ -1,89 +1,88 @@
 name: Release - Verify
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
     branches:
-      - release/v*.x
+      - alpha/v*/v*.*
+      - release/v*/v*.*
 
 jobs:
   build:
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             name: "Linux"
-            container: "docker.io/kungfutrader/kungfu-builder-centos:v1.1.2"
-          - os: macos-11
+          - os: macos-15
             name: "MacOS"
-          - os: windows-2019
+          - os: windows-2025
             name: "Windows"
     runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
     env:
       USE_HARD_LINKS: false
       BUILDER_OS: ${{ matrix.name }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7.0.0
         with:
           submodules: recursive
 
       - name: Setup Python environment
-        if: matrix.name != 'Linux'
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v6
         with:
           python-version: "3.9"
 
       - name: Setup Windows environment
         if: matrix.name == 'Windows'
-        uses: crazy-max/ghaction-chocolatey@v1
-        with:
-          args: install -y nasm --no-progress
+        shell: pwsh
+        run: choco install -y nasm --no-progress
 
       - name: Setup Windows PATH for nasm
         if: matrix.name == 'Windows'
+        shell: pwsh
         run: |
-          Get-ChildItem -Path "${env:ProgramFiles}" | Where-Object {($_.Name -Like 'NASM*')} | % { $_.FullName } | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
-      
+          Get-ChildItem -Path "${env:ProgramFiles}" | Where-Object { $_.Name -Like 'NASM*' } | ForEach-Object { $_.FullName } | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+
       - name: Build
         uses: ./.github/actions/builder
 
   release:
+    if: startsWith(github.base_ref, 'release/')
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7.0.0
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v6.0.0
         with:
           path: "github-artifacts"
 
-      - name: Configure AWS Crendentials (US)
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS Credentials (US)
+        uses: aws-actions/configure-aws-credentials@v6.2.1
         with:
           aws-access-key-id: ${{ secrets.AWS_US_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_US_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Stage Prebuilt to AWS (US)
-        uses: kungfu-trader/action-publish-prebuilt@v2
+        uses: kungfu-systems/buildchain/actions/publish-prebuilt@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts-path: "github-artifacts"
           bucket-staging: "kungfu-prebuilt-staging"
           no-comment: "true"
 
-      - name: Configure AWS Crendentials (CN)
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS Credentials (CN)
+        uses: aws-actions/configure-aws-credentials@v6.2.1
         with:
           aws-access-key-id: ${{ secrets.AWS_CN_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_CN_SECRET_ACCESS_KEY }}
           aws-region: cn-northwest-1
 
       - name: Stage Prebuilt to AWS (CN)
-        uses: kungfu-trader/action-publish-prebuilt@v2
+        uses: kungfu-systems/buildchain/actions/publish-prebuilt@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts-path: "github-artifacts"

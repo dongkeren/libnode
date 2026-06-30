@@ -8,8 +8,9 @@
   "description": "Build shared node lib",
   "license": "Apache-2.0",
   "main": "src/js/index.js",
+  "packageManager": "yarn@1.22.22",
   "repository": {
-    "url": "https://github.com/kungfu-trader/libnode.git"
+    "url": "https://github.com/kungfu-systems/libnode.git"
   },
   "binary": {
     "module_name": "link_node",

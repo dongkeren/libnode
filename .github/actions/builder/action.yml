@@ -13,12 +13,15 @@ runs:
     - name: Setup Yarn environment
       env:
         KF_SKIP_FALLBACK_BUILD: true
+        npm_config_link_node_binary_host_mirror: https://prebuilt.libkungfu.io
       shell: bash
       run: |
         corepack enable
         corepack yarn --network-timeout=5000000 install --frozen-lockfile
 
     - name: Make libnode
+      env:
+        npm_config_link_node_binary_host_mirror: https://prebuilt.libkungfu.io
       shell: bash
       # Workaround for gyp not able to find nasm.exe when run on GitHub Windows runner
       run: corepack yarn make
@@ -26,10 +29,13 @@ runs:
     - name: Build
       env:
         KF_SKIP_MAKE_LIBNODE: true
+        npm_config_link_node_binary_host_mirror: https://prebuilt.libkungfu.io
       shell: bash
       run: corepack yarn build
 
     - name: Package
+      env:
+        npm_config_link_node_binary_host_mirror: https://prebuilt.libkungfu.io
       shell: bash
       run: corepack yarn package
 

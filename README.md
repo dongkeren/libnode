@@ -9,10 +9,10 @@ Install via npm/yarn:
 npm install @kungfu-trader/libnode
 ```
 
-Be default it downloads prebuilt lib files from a site host by [AWS CN](https://prebuilt.libkungfu.cc).
-If need to use it overseas, use npm config to set it to AWS US before npm install:
+By default it downloads prebuilt lib files from a site host by [AWS CN](https://prebuilt.libkungfu.cc).
+If need to use it overseas, set the node-pre-gyp mirror environment variable before npm install:
 ```
-npm config set link_node_binary_host_mirror https://prebuilt.libkungfu.io
+npm_config_link_node_binary_host_mirror=https://prebuilt.libkungfu.io npm install @kungfu-trader/libnode
 ```
 
 ### Compile and Link

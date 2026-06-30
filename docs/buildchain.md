@@ -32,12 +32,25 @@ Yarn binary.
 ## No-build Preflight
 
 The migration can be validated before running the expensive native build. The
-Buildchain v1 `validate-config` action checks that `buildchain.toml` is present,
-that `package.json#version` is readable as version state, and that the required
-`install`, `build`, and `verify` lifecycle stages are declared.
+published Buildchain v1 `validate-config` action checks that
+`buildchain.toml` is present, that `package.json#version` is readable as version
+state, and that the required `install`, `build`, and `verify` lifecycle stages
+are declared.
 
 That preflight is intentionally structural. It does not run
 `corepack yarn make`, `corepack yarn build`, or `corepack yarn package`.
+
+The repository runs this check through
+`.github/workflows/buildchain-preflight.yml` on PRs into the development, alpha,
+and release lines:
+
+```yaml
+uses: kungfu-systems/buildchain/actions/validate-config@v1
+with:
+  config-required: "true"
+  require-version-state: "true"
+  require-lifecycle-stages: "install,build,verify"
+```
 
 The local preflight result for this adaptation is:
 

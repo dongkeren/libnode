@@ -1,5 +1,5 @@
 {
-  "name": "@kungfu-trader/libnode",
+  "name": "@kungfu-tech/libnode",
   "author": {
     "name": "kungfu-trader",
     "email": "info@kungfu.link"
@@ -9,7 +9,11 @@
   "license": "Apache-2.0",
   "main": "src/js/index.js",
   "repository": {
-    "url": "https://github.com/kungfu-trader/libnode.git"
+    "url": "https://github.com/kungfu-systems/libnode.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "binary": {
     "module_name": "link_node",

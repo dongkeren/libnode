@@ -1,0 +1,35 @@
+schema = 1
+
+[version]
+required = true
+
+[[version.files]]
+type = "json"
+path = "package.json"
+key = "version"
+
+[lifecycle.env]
+KF_SKIP_FALLBACK_BUILD = "true"
+
+[lifecycle.install]
+timeout_minutes = 10
+command = "corepack yarn --network-timeout=5000000 install --frozen-lockfile"
+
+[lifecycle.build]
+timeout_minutes = 120
+commands = [
+  "corepack yarn make",
+  "KF_SKIP_MAKE_LIBNODE=true corepack yarn build",
+  "corepack yarn package",
+]
+
+[lifecycle.verify]
+timeout_minutes = 120
+script = """
+set -euo pipefail
+corepack yarn --network-timeout=5000000 install --frozen-lockfile
+corepack yarn make
+KF_SKIP_MAKE_LIBNODE=true corepack yarn build
+corepack yarn package
+git diff --check
+"""

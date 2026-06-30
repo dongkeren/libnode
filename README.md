@@ -6,7 +6,7 @@ This project provides shared lib for [Node.js](https://nodejs.org).
 
 Install via npm/yarn:
 ```
-npm install @kungfu-trader/libnode
+npm install @kungfu-tech/libnode
 ```
 
 Be default it downloads prebuilt lib files from a site host by [AWS CN](https://prebuilt.libkungfu.cc).
@@ -19,14 +19,14 @@ npm config set link_node_binary_host_mirror https://prebuilt.libkungfu.io
 
 Get the path for shared lib for compilers:
 ```
-node -p "require('@kungfu-trader/libnode').libpath"
+node -p "require('@kungfu-tech/libnode').libpath"
 ```
 
 Get the headers path:
 ```
-node -p "require('@kungfu-trader/libnode').include"
+node -p "require('@kungfu-tech/libnode').include"
 ```
 
 ## Build with GitHub Actions
 
-If you need other versions of Node.js that we don't provide, you can fork [this repo on GitHub](https://github.com/kungfu-trader/libnode) and build with GitHub Actions. There is a workflow named "Build" that can be triggered mannually with an input argument, type the git tag of [node](https://github.com/nodejs/node) that you want to use and go. The result will be uploaded to GitHub Actions when successfully finished.
+If you need other versions of Node.js that we don't provide, you can fork [this repo on GitHub](https://github.com/kungfu-systems/libnode) and build with GitHub Actions. There is a workflow named "Build" that can be triggered mannually with an input argument, type the git tag of [node](https://github.com/nodejs/node) that you want to use and go. The result will be uploaded to GitHub Actions when successfully finished.

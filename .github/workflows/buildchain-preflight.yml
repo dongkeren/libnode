@@ -1,0 +1,31 @@
+name: Buildchain Preflight
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - dev/v*.x
+      - alpha/v*/v*.*
+      - release/v*/v*.*
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: buildchain-preflight-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-config:
+    name: Validate buildchain.toml
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.0
+
+      - name: Validate Buildchain config
+        uses: kungfu-systems/buildchain/actions/validate-config@v1
+        with:
+          config-required: "true"
+          require-version-state: "true"
+          require-lifecycle-stages: "install,build,verify"

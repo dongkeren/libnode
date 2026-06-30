@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v6.4.0
         with:
-          node-version: "24"
+          node-version: '24'
 
       - name: Configure AWS Credentials (CI)
         uses: aws-actions/configure-aws-credentials@v6.2.1
@@ -30,12 +30,12 @@ jobs:
           aws-region: us-east-1
 
       - name: Publish Prebuilt to AWS (CI)
-        uses: kungfu-systems/buildchain/actions/publish-prebuilt@v1
+        uses: kungfu-systems/buildchain/actions/publish-prebuilt@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           bucket-staging: 'kungfu-prebuilt-staging'
           bucket-release: 'kungfu-prebuilt'
-          no-comment: "true"
+          no-comment: 'true'
 
       - name: Configure AWS Credentials (User)
         uses: aws-actions/configure-aws-credentials@v6.2.1
@@ -45,7 +45,7 @@ jobs:
           aws-region: cn-northwest-1
 
       - name: Publish Prebuilt to AWS (User)
-        uses: kungfu-systems/buildchain/actions/publish-prebuilt@v1
+        uses: kungfu-systems/buildchain/actions/publish-prebuilt@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           bucket-staging: 'kungfu-prebuilt-staging'
@@ -63,7 +63,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v6.4.0
         with:
-          node-version: "24"
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Publish to NPM Packages

@@ -18,18 +18,18 @@ concurrency:
 
 jobs:
   build:
-    uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v1.0.9
+    uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2
     with:
-      buildchain-ref: v1.0.9
+      buildchain-ref: v2
       runner-preset: kungfu-v4-self-hosted
       setup-node: true
-      node-version: "24"
+      node-version: '24'
       install-command: node .gyp/buildchain-install.js "${{ vars.KF_NODE_GIT_URL }}" "${{ vars.KF_NODE_REFERENCE }}"
       require-install: true
       require-build: true
       require-verify: true
       artifact-name: libnode
-      artifact-name-template: "{artifact}-{platform}-{shortSha}-{runId}-{runAttempt}"
+      artifact-name-template: '{artifact}-{platform}-{sha}'
       artifact-paths: |
         build/stage
       expected-artifacts-json: >-

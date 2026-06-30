@@ -8,28 +8,31 @@ type = "json"
 path = "package.json"
 key = "version"
 
+[lifecycle]
+
 [lifecycle.env]
 KF_SKIP_FALLBACK_BUILD = "true"
+KF_COMPILER_CACHE = "auto"
 
 [lifecycle.install]
 timeout_minutes = 10
-command = "corepack yarn --network-timeout=5000000 install --frozen-lockfile"
+commands = [
+  "corepack yarn --network-timeout=5000000 install --frozen-lockfile --ignore-scripts",
+  "node .gyp/node-npm-config.js",
+  "corepack yarn prepare-node-source",
+]
 
 [lifecycle.build]
-timeout_minutes = 120
+timeout_minutes = 240
 commands = [
   "corepack yarn make",
-  "KF_SKIP_MAKE_LIBNODE=true corepack yarn build",
+  "node .gyp/run-with-env.js KF_SKIP_MAKE_LIBNODE=true -- corepack yarn build",
   "corepack yarn package",
 ]
 
 [lifecycle.verify]
-timeout_minutes = 120
-script = """
-set -euo pipefail
-corepack yarn --network-timeout=5000000 install --frozen-lockfile
-corepack yarn make
-KF_SKIP_MAKE_LIBNODE=true corepack yarn build
-corepack yarn package
-git diff --check
-"""
+timeout_minutes = 10
+commands = [
+  "corepack yarn verify-release",
+  "git diff --check",
+]

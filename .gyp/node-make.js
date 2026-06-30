@@ -1,4 +1,5 @@
 const { exitOnError, patchEnv, run } = require('./node-lib.js');
+const { commandExists, prepareWindowsPythonEnv } = require('./build-env.js');
 const fs = require('fs');
 const fse = require('fs-extra');
 const path = require('path');
@@ -9,6 +10,109 @@ const convert = require('xml-js');
 const arch = process.arch;
 const nodeSrcDir = path.resolve('node');
 const nodeDistDir = path.join(path.dirname(__dirname), 'dist', 'node');
+
+function flag(name) {
+  return /^(1|true|yes|on)$/i.test(process.env[name] || '');
+}
+
+function buildJobs() {
+  const value = Number(process.env.KF_BUILD_JOBS || '');
+  if (Number.isInteger(value) && value > 0) return value;
+  return os.cpus().length;
+}
+
+function cacheRoot() {
+  if (process.env.KF_COMPILER_CACHE_ROOT) return path.resolve(process.env.KF_COMPILER_CACHE_ROOT);
+  if (process.platform === 'win32') {
+    return path.join(process.env.LOCALAPPDATA || os.homedir(), 'Kungfu', 'build-cache');
+  }
+  return path.join(os.homedir(), '.cache', 'kungfu', 'build-cache');
+}
+
+function ensureEnv(name, value) {
+  if (!process.env[name]) process.env[name] = value;
+}
+
+function runCacheTool(tool, args) {
+  run(tool, args, { check: false });
+}
+
+function prepareUnixCompilerCache(mode) {
+  if (mode === 'sccache') {
+    const sccache = commandExists('sccache');
+    if (!sccache) return false;
+    ensureEnv('SCCACHE_DIR', path.join(cacheRoot(), 'sccache', 'libnode', `${process.platform}-${arch}`));
+    process.env.CC = `sccache ${process.env.CC || (process.platform === 'darwin' ? 'cc' : 'gcc')}`;
+    process.env.CXX = `sccache ${process.env.CXX || (process.platform === 'darwin' ? 'c++' : 'g++')}`;
+    runCacheTool('sccache', ['--start-server']);
+    console.log(`compiler cache: sccache (${process.env.SCCACHE_DIR})`);
+    return true;
+  }
+
+  const ccache = commandExists('ccache');
+  if (!ccache) return false;
+  ensureEnv('CCACHE_DIR', path.join(cacheRoot(), 'ccache', 'libnode', `${process.platform}-${arch}`));
+  process.env.CC = `ccache ${process.env.CC || (process.platform === 'darwin' ? 'cc' : 'gcc')}`;
+  process.env.CXX = `ccache ${process.env.CXX || (process.platform === 'darwin' ? 'c++' : 'g++')}`;
+  runCacheTool('ccache', ['--show-stats']);
+  console.log(`compiler cache: ccache (${process.env.CCACHE_DIR})`);
+  return true;
+}
+
+function prepareWindowsCompilerCache(mode) {
+  const ccacheDir = process.env.KF_NODE_WIN_CCACHE_PATH || path.dirname(commandExists('ccache') || '');
+  if ((mode === 'auto' || mode === 'ccache') && ccacheDir && fs.existsSync(path.join(ccacheDir, 'ccache.exe'))) {
+    ensureEnv('CCACHE_DIR', path.join(cacheRoot(), 'ccache', 'libnode', `win32-${arch}`));
+    runCacheTool(path.join(ccacheDir, 'ccache.exe'), ['--show-stats']);
+    console.log(`compiler cache: ccache (${process.env.CCACHE_DIR})`);
+    return ['ccache', ccacheDir];
+  }
+
+  const sccache = commandExists('sccache');
+  if ((mode === 'auto' || mode === 'sccache') && sccache) {
+    ensureEnv('SCCACHE_DIR', path.join(cacheRoot(), 'sccache', 'libnode', `win32-${arch}`));
+    runCacheTool('sccache', ['--start-server']);
+    console.log(`compiler cache: sccache available (${process.env.SCCACHE_DIR}); vcbuild ccache wrapper not injected`);
+  }
+  return [];
+}
+
+function prepareCompilerCache() {
+  if (flag('KF_DISABLE_COMPILER_CACHE')) return [];
+  const mode = (process.env.KF_COMPILER_CACHE || 'auto').toLowerCase();
+  if (mode === '0' || mode === 'false' || mode === 'off' || mode === 'none') return [];
+
+  if (process.platform === 'win32') {
+    return prepareWindowsCompilerCache(mode);
+  }
+
+  if (!prepareUnixCompilerCache(mode)) {
+    console.log('compiler cache: unavailable');
+  }
+  return [];
+}
+
+function showCompilerCacheStats() {
+  if (process.env.CCACHE_DIR && commandExists('ccache')) {
+    runCacheTool('ccache', ['--show-stats']);
+  }
+  if (process.env.SCCACHE_DIR && commandExists('sccache')) {
+    runCacheTool('sccache', ['--show-stats']);
+  }
+}
+
+function cleanNodeBuildState() {
+  const generatedPaths = ['out', 'Release', 'Debug', 'config.gypi', 'config.mk'];
+  for (const entry of generatedPaths) {
+    fse.removeSync(path.join(nodeSrcDir, entry));
+  }
+
+  for (const entry of fs.readdirSync(nodeSrcDir)) {
+    if (/\.(sln|vcxproj|vcxproj\.filters|vcxproj\.user)$/.test(entry)) {
+      fse.removeSync(path.join(nodeSrcDir, entry));
+    }
+  }
+}
 
 const runWinPatch = () => {
   // Workaround from https://github.com/nodejs/node/issues/34539
@@ -62,14 +166,21 @@ const runWinPatch = () => {
 
 const buildWin = () => {
   patchEnv();
-  run(path.join('.', 'vcbuild.bat'), ['dll', arch, 'release', 'projgen', 'nobuild'], { cwd: nodeSrcDir });
+  cleanNodeBuildState();
+  prepareWindowsPythonEnv();
+  const cacheArgs = prepareCompilerCache();
+  run(path.join('.', 'vcbuild.bat'), ['dll', arch, 'release', 'projgen', 'nobuild', ...cacheArgs], { cwd: nodeSrcDir });
   runWinPatch();
-  run(path.join('.', 'vcbuild.bat'), ['dll', 'noprojgen'], { cwd: nodeSrcDir });
+  run(path.join('.', 'vcbuild.bat'), ['dll', 'noprojgen', ...cacheArgs], { cwd: nodeSrcDir });
+  showCompilerCacheStats();
 };
 
 const buildUnix = () => {
+  cleanNodeBuildState();
+  prepareCompilerCache();
   run('sh', [path.join('.', 'configure'), '-C', '--shared'], { cwd: nodeSrcDir });
-  run('make', ['-j', `${os.cpus().length}`], { cwd: nodeSrcDir });
+  run('make', ['-j', `${buildJobs()}`], { cwd: nodeSrcDir });
+  showCompilerCacheStats();
 };
 
 const build = process.platform === 'win32' ? buildWin : buildUnix;

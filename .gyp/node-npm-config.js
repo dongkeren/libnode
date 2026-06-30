@@ -16,13 +16,15 @@ const npmConfigKey = `${key}_${PrebuiltHostConfig}`;
 
 const scope = (npmConfigValue) => (npmConfigValue === 'undefined' ? '[package.json]' : '[user]');
 
-function npmCall(npmArgs) {
+function npmCall(npmArgs, opts = {}) {
+  opts.check = opts.check === undefined || opts.check;
   console.log(`$ npm ${npmArgs.join(' ')}`);
   const result = spawnSync('npm', npmArgs, spawnOptsInherit);
-  if (result.status !== 0) {
-    console.error(`Failed with status ${status}`);
+  if (opts.check && result.status !== 0) {
+    console.error(`Failed with status ${result.status}`);
     process.exit(result.status);
   }
+  return result.status;
 }
 
 function getNpmConfigValue(key) {
@@ -39,7 +41,9 @@ function showAllConfig() {
 }
 
 if (require.main === module && process.env.CI && process.env.GITHUB_ACTIONS) {
-  npmCall(['config', 'set', npmConfigKey, PrebuiltHost_US]);
+  if (npmCall(['config', 'set', npmConfigKey, PrebuiltHost_US], { check: false }) !== 0) {
+    console.warn(`warning: failed to set npm config ${npmConfigKey}; using package.json binary.host`);
+  }
 }
 
 if (require.main === module) {

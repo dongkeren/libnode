@@ -112,6 +112,7 @@ __pypackages__/
 *.egg
 
 # Build related
+.buildchain/
 build/
 build-*/
 cmake-build-debug/

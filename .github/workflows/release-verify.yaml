@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened]
     branches:
       - release/v*.x
+      - release/v*/v*.*
 
 permissions:
   contents: read

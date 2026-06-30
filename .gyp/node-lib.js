@@ -20,7 +20,7 @@ exports.run = function (cmd, argv, opts = {}) {
   opts.cwd = fs.realpathSync(path.resolve(opts.cwd || process.cwd()));
   console.log(`$ ${cmd} ${argv.join(' ')}`);
   const result = spawnSync(cmd, argv, {
-    shell: true,
+    shell: process.platform === 'win32',
     stdio: 'inherit',
     windowsHide: true,
     ...opts,

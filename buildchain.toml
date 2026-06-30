@@ -17,22 +17,22 @@ KF_COMPILER_CACHE = "auto"
 [lifecycle.install]
 timeout_minutes = 10
 commands = [
-  "corepack yarn --network-timeout=5000000 install --frozen-lockfile --ignore-scripts",
+  "corepack pnpm install --frozen-lockfile --ignore-scripts",
   "node .gyp/node-npm-config.js",
-  "corepack yarn prepare-node-source",
+  "corepack pnpm prepare-node-source",
 ]
 
 [lifecycle.build]
 timeout_minutes = 240
 commands = [
-  "corepack yarn make",
-  "node .gyp/run-with-env.js KF_SKIP_MAKE_LIBNODE=true -- corepack yarn build",
-  "corepack yarn package",
+  "corepack pnpm make",
+  "node .gyp/run-with-env.js KF_SKIP_MAKE_LIBNODE=true -- corepack pnpm build",
+  "corepack pnpm package",
 ]
 
 [lifecycle.verify]
 timeout_minutes = 10
 commands = [
-  "corepack yarn verify-release",
+  "corepack pnpm verify-release",
   "git diff --check",
 ]

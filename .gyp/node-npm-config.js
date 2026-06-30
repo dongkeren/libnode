@@ -7,8 +7,8 @@ const { spawnSync } = require('child_process');
 const PrebuiltHostConfig = 'binary_host_mirror';
 const PrebuiltHost_US = 'https://prebuilt.libkungfu.io';
 
-const spawnOptsPipe = { shell: true, stdio: 'pipe', windowsHide: true };
-const spawnOptsInherit = { shell: true, stdio: 'inherit', windowsHide: true };
+const spawnOptsPipe = { shell: process.platform === 'win32', stdio: 'pipe', windowsHide: true };
+const spawnOptsInherit = { shell: process.platform === 'win32', stdio: 'inherit', windowsHide: true };
 
 const packageJson = JSON.parse(fs.readFileSync(path.resolve(path.dirname(__dirname), 'package.json')));
 const key = packageJson.binary.module_name;

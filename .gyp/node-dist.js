@@ -1,6 +1,6 @@
 const { exitOnError } = require('./node-lib.js');
 const fse = require('fs-extra');
-const glob = require('glob');
+const { globSync } = require('glob');
 const path = require('path');
 const sywac = require('sywac');
 
@@ -11,10 +11,10 @@ const dist = (buildType) => {
   const include = (p) => path.basename(p).includes('.so.') || exts.includes(path.extname(p));
   const match = (p) => fse.lstatSync(p).isFile() && include(p);
   const copy = (p) => fse.copySync(p, path.join(nodeDistDir, path.basename(p)));
-  const copyFiles = (pattern) => glob.sync(pattern).filter(match).forEach(copy);
+  const copyFiles = (pattern) => globSync(pattern).filter(match).forEach(copy);
   const copyHeaders = (source) => {
     const target = path.join(nodeDistDir, 'include');
-    glob.sync(path.join(source, '**', '*.h')).forEach((p) => {
+    globSync(path.join(source, '**', '*.h')).forEach((p) => {
       header = path.resolve(p);
       fse.copySync(header, path.join(target, header.replace(source, '')));
     });
@@ -22,7 +22,7 @@ const dist = (buildType) => {
   const makeSymbolLink = (pattern, ext) => {
     const target = path.join(nodeDistDir, `libnode.${ext}`);
     const link = (p) => fse.symlinkSync(path.basename(p), target);
-    glob.sync(path.join(nodeDistDir, pattern)).sort().reverse().slice(0, 1).forEach(link);
+    globSync(path.join(nodeDistDir, pattern)).sort().reverse().slice(0, 1).forEach(link);
   };
 
   fse.ensureDirSync(nodeDistDir);

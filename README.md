@@ -4,7 +4,7 @@ This project provides shared lib for [Node.js](https://nodejs.org).
 
 ## Usage
 
-Install via npm/yarn:
+Install via npm or pnpm:
 ```
 npm install @kungfu-tech/libnode
 ```

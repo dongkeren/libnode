@@ -6,6 +6,7 @@ on:
     types: [opened, synchronize, reopened]
     branches:
       - dev/v*.x
+      - dev/v*/v*.*
       - alpha/v*/v*.*
 
 permissions:

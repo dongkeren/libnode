@@ -3,8 +3,8 @@ const { exitOnError, run } = require('./node-lib.js');
 function node_pre_gyp(cmd, check = true) {
   const buildType = process.env.npm_package_config_build_type;
   const buildTypeOpt = buildType === 'Debug' ? ['--debug'] : [];
-  const yarnArgs = ['node-pre-gyp', ...buildTypeOpt, ...cmd];
-  run('yarn', yarnArgs, { check: check });
+  const nodePreGypBin = require.resolve('@mapbox/node-pre-gyp/bin/node-pre-gyp');
+  run(process.execPath, [nodePreGypBin, ...buildTypeOpt, ...cmd], { check: check });
 }
 
 const cli = require('sywac')

@@ -5,13 +5,13 @@
       "<(module_root_dir)/.gitmodules",
     ],
     "libnode_inputs": [
-      "<!@(node -p \"require('glob').sync('node/**/*.*(h|cc|S)', {ignore:'node/out/**'}).join(' ');\")",
+      "<!@(node -p \"require('glob').globSync('node/**/*.*(h|cc|S)', {ignore:'node/out/**'}).join(' ');\")",
     ],
     "module_inputs": [
-      "<!@(node -p \"require('glob').sync('src/**/*.*(h|cc)').join(' ');\")",
+      "<!@(node -p \"require('glob').globSync('src/**/*.*(h|cc)').join(' ');\")",
     ],
     "gyp_inputs": [
-      "<!@(node -p \"require('glob').sync('.gyp/**/*.*(js|py)').join(' ');\")",
+      "<!@(node -p \"require('glob').globSync('.gyp/**/*.*(js|py)').join(' ');\")",
     ],
   },
   "targets": [
@@ -54,7 +54,7 @@
           ],
           "action": [
             "python",
-            "<(gyp_dir)/gyp_action_yarn.py",
+            "<(gyp_dir)/gyp_action_node.py",
             "make",
           ]
         }
@@ -93,7 +93,7 @@
           ],
           "action": [
             "python",
-            "<(gyp_dir)/gyp_action_yarn.py",
+            "<(gyp_dir)/gyp_action_node.py",
             "dist",
           ]
         }

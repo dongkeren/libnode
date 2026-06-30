@@ -16,7 +16,7 @@ publishing to the official npm registry.
 
 The configured lifecycle keeps the existing libnode build order:
 
-1. install JavaScript build helpers with Yarn;
+1. install JavaScript build helpers with pnpm;
 2. build the embedded Node.js shared library;
 3. build the `link_node` addon;
 4. package the node-pre-gyp prebuilt archive;
@@ -25,8 +25,8 @@ The configured lifecycle keeps the existing libnode build order:
 The full lifecycle is intentionally expensive. Release PRs should rely on the
 GitHub matrix workflow for Linux, macOS arm64, and Windows verification.
 
-The workflow invokes Yarn through Corepack so the runner does not rely on a
-preinstalled global Yarn binary.
+The workflow invokes pnpm through Corepack so the runner does not rely on a
+preinstalled global package manager binary.
 
 ## No-build Preflight
 
@@ -37,7 +37,7 @@ state, and that the required `install`, `build`, and `verify` lifecycle stages
 are declared.
 
 That preflight is intentionally structural. It does not run
-`corepack yarn make`, `corepack yarn build`, or `corepack yarn package`.
+`corepack pnpm make`, `corepack pnpm build`, or `corepack pnpm package`.
 
 The repository runs this check through
 `.github/workflows/buildchain-preflight.yml` on PRs into the development, alpha,

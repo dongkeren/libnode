@@ -4,6 +4,7 @@ on:
     types: [closed]
     branches:
       - release/v*.x
+      - release/v*/v*.*
 
 jobs:
   publish-aws:
@@ -19,7 +20,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v6.4.0
         with:
-          node-version: "14"
+          node-version: "24"
 
       - name: Configure AWS Credentials (CI)
         uses: aws-actions/configure-aws-credentials@v6.2.1
@@ -62,7 +63,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v6.4.0
         with:
-          node-version: "14"
+          node-version: "24"
           registry-url: 'https://registry.npmjs.org'
 
       - name: Publish to NPM Packages

@@ -100,6 +100,28 @@ function maybeReferencePath() {
   return '';
 }
 
+function referenceIsShallow(referencePath) {
+  return output('git', ['-C', referencePath, 'rev-parse', '--is-shallow-repository']) === 'true';
+}
+
+function usableReferencePath() {
+  const referencePath = maybeReferencePath();
+  if (!referencePath) return '';
+  if (!output('git', ['-C', referencePath, 'rev-parse', '--git-dir'])) {
+    if (flag('KF_NODE_REFERENCE_REQUIRED')) {
+      throw new Error(`KF_NODE_REFERENCE is not a git repository: ${referencePath}`);
+    }
+    console.warn(`KF_NODE_REFERENCE is not a git repository, continuing without reference: ${referencePath}`);
+    return '';
+  }
+  if (!referenceIsShallow(referencePath)) return referencePath;
+  if (flag('KF_NODE_REFERENCE_REQUIRED')) {
+    throw new Error(`KF_NODE_REFERENCE is shallow and cannot be used as a git clone reference: ${referencePath}`);
+  }
+  console.warn(`KF_NODE_REFERENCE is shallow, continuing without reference: ${referencePath}`);
+  return '';
+}
+
 function updateFrom(url, referencePath) {
   prepareGitNetworkEnv(url);
   configureSubmodule(url);
@@ -157,7 +179,7 @@ function main() {
 
   const configuredUrl =
     process.env.KF_NODE_GIT_URL || process.env.KF_NODE_GIT_MIRROR || gitmodules('submodule.node.url') || defaultNodeUrl;
-  const referencePath = maybeReferencePath();
+  const referencePath = usableReferencePath();
   resetIncompleteNodeCheckout();
   if (updateFrom(configuredUrl, referencePath)) {
     if (nodeIsReady()) return;

@@ -29,6 +29,24 @@ The workflow invokes Yarn through Corepack so the runner follows
 `packageManager` in `package.json` instead of relying on a preinstalled global
 Yarn binary.
 
+## No-build Preflight
+
+The migration can be validated before running the expensive native build. The
+Buildchain v1 `validate-config` action checks that `buildchain.toml` is present,
+that `package.json#version` is readable as version state, and that the required
+`install`, `build`, and `verify` lifecycle stages are declared.
+
+That preflight is intentionally structural. It does not run
+`corepack yarn make`, `corepack yarn build`, or `corepack yarn package`.
+
+The local preflight result for this adaptation is:
+
+```text
+configPath: buildchain.toml
+versionFiles: package.json
+lifecycleStages: install, build, verify
+```
+
 ## Release Workflow
 
 Release verification still builds platform artifacts in this repository because

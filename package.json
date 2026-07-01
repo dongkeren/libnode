@@ -25,6 +25,7 @@
     "README.md"
   ],
   "scripts": {
+    "install": "node .gyp/noop-install.js",
     "build": "node .gyp/node-build.js build",
     "clean": "node .gyp/node-build.js clean",
     "dist": "node .gyp/node-dist.js",

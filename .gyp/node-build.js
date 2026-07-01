@@ -5,9 +5,10 @@ const { exitOnError, run } = require('./node-lib.js');
 
 const rootDir = path.dirname(__dirname);
 const nodeGyp = require.resolve('node-gyp/bin/node-gyp.js');
+const addonModuleName = 'link_node';
 
 function runNodeGyp(args) {
-  run(process.execPath, [nodeGyp, ...args], {
+  run(process.execPath, [nodeGyp, `--module_name=${addonModuleName}`, ...args], {
     cwd: rootDir,
     env: process.env,
   });

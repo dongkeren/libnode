@@ -4,9 +4,11 @@ import sys
 import gyp_action_lib as lib
 
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
 scripts = {
-    "make": [os.environ.get("NODE", "node"), ".gyp/node-make.js"],
-    "dist": [os.environ.get("NODE", "node"), ".gyp/node-dist.js"],
+    "make": [os.environ.get("NODE", "node"), os.path.join(script_dir, "node-make.js")],
+    "dist": [os.environ.get("NODE", "node"), os.path.join(script_dir, "node-dist.js")],
 }
 
 argv = lib.extract_argv()

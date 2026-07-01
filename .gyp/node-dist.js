@@ -4,8 +4,10 @@ const { globSync } = require('glob');
 const path = require('path');
 const sywac = require('sywac');
 
+const rootDir = path.dirname(__dirname);
+
 const dist = (buildType) => {
-  const nodeDistDir = path.join('dist', 'node');
+  const nodeDistDir = path.join(rootDir, 'dist', 'node');
   const exts = ['.json', '.node', '.dylib', '.so', '.dll', '.lib'];
 
   const globFiles = (pattern) =>
@@ -34,13 +36,13 @@ const dist = (buildType) => {
   fse.ensureDirSync(nodeDistDir);
   fse.emptyDirSync(nodeDistDir);
 
-  copyFiles(path.join('build', buildType, '*.*'));
-  copyFiles(path.join('node', buildType, 'libnode*'));
-  copyFiles(path.join('node', 'out', buildType, 'libnode*'));
+  copyFiles(path.join(rootDir, 'build', buildType, '*.*'));
+  copyFiles(path.join(rootDir, 'node', buildType, 'libnode*'));
+  copyFiles(path.join(rootDir, 'node', 'out', buildType, 'libnode*'));
 
-  copyHeaders(path.resolve('node', 'src'));
-  copyHeaders(path.resolve('node', 'deps', 'v8', 'include'));
-  copyHeaders(path.resolve('node', 'deps', 'uv', 'include'));
+  copyHeaders(path.join(rootDir, 'node', 'src'));
+  copyHeaders(path.join(rootDir, 'node', 'deps', 'v8', 'include'));
+  copyHeaders(path.join(rootDir, 'node', 'deps', 'uv', 'include'));
 
   makeSymbolLink('libnode.*.dylib', 'dylib');
   makeSymbolLink('libnode.so.*', 'so');

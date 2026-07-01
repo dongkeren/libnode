@@ -26,13 +26,13 @@ publishing to the official npm registry.
 
 ## Lifecycle
 
-The configured lifecycle keeps the existing libnode build order:
+The configured lifecycle keeps the existing libnode build dependency order:
 
 1. install JavaScript build helpers with pnpm;
-2. build the embedded Node.js shared library;
-3. build the `link_node` addon;
-4. package the platform-specific npm tarball under `build/stage/npm`;
-5. check the final diff.
+2. run the node-gyp build graph, whose `libnode` target builds the embedded
+   Node.js shared library before the `link_node` addon and dist target;
+3. package the platform-specific npm tarball under `build/stage/npm`;
+4. check the final diff.
 
 The full lifecycle is intentionally expensive. Release PRs should rely on the
 GitHub matrix workflow for Linux, macOS arm64, and Windows verification.

@@ -81,6 +81,10 @@ libnode has platform-specific native outputs. Those artifacts are npm tarballs:
 one package per supported platform, plus the main package tarball from the
 Linux x64 release build.
 
+The release chain does not publish native binaries to AWS/S3. GitHub Actions
+artifacts are only the handoff between the Buildchain build job and the npm
+publish job, and npm is the release distribution surface.
+
 Actual npm publication is driven by reviewed `publish-gate/*` source branches,
 not by a merge into `release/*` alone. The branch name is the auditable release
 decision and must include the exact package version that already exists in the
@@ -101,11 +105,12 @@ Buildchain's `verify-publish-source-lock.mjs`. If the branch has moved since
 the build resolved it, the job fails closed and a new run is required.
 
 Alpha publication uses npm dist-tag `alpha`. Release publication uses dist-tag
-`latest`, but defaults to promotion semantics: every package tarball must
-already exist in the registry with matching integrity, normally from the alpha
-run, and then `latest` is moved only after the full package set is verified.
+`latest`, but defaults to npm registry verification semantics: every package
+tarball must already exist in the registry with matching integrity, normally
+from the alpha run, and then `latest` is moved only after the full package set
+is verified.
 
-The npm package set is published or promoted in platform-first/main-last order.
+The npm package set is published or retagged in platform-first/main-last order.
 The main `@kungfu-tech/libnode` package is the last visible package so npm
 optional dependency resolution can see the platform packages immediately.
 

@@ -17,6 +17,7 @@ const platformPackages = [
     os: ['darwin'],
     cpu: ['arm64'],
     binaries: ['libnode*.dylib'],
+    aliases: [{ source: 'libnode.*.dylib', target: 'libnode.dylib' }],
   },
   {
     key: 'linux-x64',
@@ -24,6 +25,7 @@ const platformPackages = [
     os: ['linux'],
     cpu: ['x64'],
     binaries: ['libnode.so*'],
+    aliases: [{ source: 'libnode.so.*', target: 'libnode.so' }],
   },
   {
     key: 'win32-x64',
@@ -73,7 +75,11 @@ function relativePackagePath(file) {
 }
 
 function listDistFiles(pattern) {
-  return globSync(path.join(distDir, pattern), {
+  return listFiles(distDir, pattern);
+}
+
+function listFiles(root, pattern) {
+  return globSync(path.join(root, pattern), {
     nodir: true,
     windowsPathsNoEscape: true,
   });
@@ -105,6 +111,23 @@ function verifyPlatformDist(descriptor) {
     binaries: descriptor.binaries.flatMap((pattern) => listDistFiles(pattern)).map(relativePackagePath),
     headers: headers.map(relativePackagePath),
   };
+}
+
+function materializePackageAliases(packageDistDir, descriptor) {
+  for (const alias of descriptor.aliases || []) {
+    const source = listFiles(packageDistDir, alias.source)
+      .filter((file) => path.basename(file) !== alias.target)
+      .sort()
+      .reverse()[0];
+
+    if (!source) {
+      throw new Error(`Missing ${descriptor.key} alias source: expected ${alias.source}`);
+    }
+
+    const target = path.join(packageDistDir, alias.target);
+    fs.removeSync(target);
+    fs.copyFileSync(fs.realpathSync(source), target);
+  }
 }
 
 function basePackageJson(sourcePackageJson, name, description) {
@@ -186,9 +209,11 @@ function preparePlatformPackage(descriptor) {
   };
 
   writeJson(path.join(packageRoot, 'package.json'), packageJson);
-  fs.copySync(distDir, path.join(packageRoot, 'dist', 'node'), {
+  const packageDistDir = path.join(packageRoot, 'dist', 'node');
+  fs.copySync(distDir, packageDistDir, {
     dereference: false,
   });
+  materializePackageAliases(packageDistDir, descriptor);
   copyIfExists(path.join(rootDir, 'LICENSE'), path.join(packageRoot, 'LICENSE'));
   copyIfExists(path.join(rootDir, 'libnode.release.json'), path.join(packageRoot, 'libnode.release.json'));
   writePackageReadme(packageRoot, descriptor.name, `This package contains libnode binaries for ${descriptor.key}.`);

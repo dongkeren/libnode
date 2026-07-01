@@ -8,10 +8,10 @@ const roots = process.argv.slice(2);
 const mainPackageName = '@kungfu-tech/libnode';
 const platformPackageRequirements = {
   '@kungfu-tech/libnode-darwin-arm64': {
-    binaries: [/^package\/dist\/node\/libnode.*\.dylib$/],
+    binaries: [/^package\/dist\/node\/libnode\.\d+\.dylib$/, /^package\/dist\/node\/libnode\.dylib$/],
   },
   '@kungfu-tech/libnode-linux-x64': {
-    binaries: [/^package\/dist\/node\/libnode\.so(?:\.|$)/],
+    binaries: [/^package\/dist\/node\/libnode\.so\.\d+$/, /^package\/dist\/node\/libnode\.so$/],
   },
   '@kungfu-tech/libnode-win32-x64': {
     binaries: [/^package\/dist\/node\/libnode.*\.dll$/i, /^package\/dist\/node\/libnode.*\.lib$/i],
@@ -116,9 +116,24 @@ function packageFromTarball(file) {
     version,
     integrity: tarballIntegrity(file),
     main: name === mainPackageName,
+    optionalDependencies: packageJson.optionalDependencies || {},
   };
   verifyPlatformTarballPayload(pkg);
   return pkg;
+}
+
+function verifyPackageSet(packages) {
+  const mainPackage = packages.find(isMainPackage);
+  if (!mainPackage) {
+    throw new Error(`Package set must include the main package ${mainPackageName}`);
+  }
+
+  for (const [name, version] of Object.entries(mainPackage.optionalDependencies)) {
+    const found = packages.some((pkg) => pkg.name === name && pkg.version === version);
+    if (!found) {
+      throw new Error(`Package set is missing optional dependency ${name}@${version}`);
+    }
+  }
 }
 
 function npmViewIntegrity(pkg) {
@@ -196,9 +211,7 @@ async function main() {
     throw new Error(`No npm tarballs found under: ${roots.join(', ')}`);
   }
 
-  if (!packages.some(isMainPackage)) {
-    throw new Error(`Package set must include the main package ${mainPackageName}`);
-  }
+  verifyPackageSet(packages);
 
   const distTag = process.env.KF_NPM_DIST_TAG || 'latest';
   const existing = new Set();

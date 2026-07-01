@@ -158,8 +158,8 @@ function preparePlatformPackage(descriptor) {
 
 function npmPack(packageRoot) {
   fs.ensureDirSync(stageDir);
-  const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const result = childProcess.spawnSync(npmCommand, ['pack', '--pack-destination', stageDir], {
+  const { command, args } = npmCommand('pack', '--pack-destination', stageDir);
+  const result = childProcess.spawnSync(command, args, {
     cwd: packageRoot,
     env: process.env,
     encoding: 'utf8',
@@ -173,6 +173,26 @@ function npmPack(packageRoot) {
     const error = result.error ? `: ${result.error.message}` : '';
     throw new Error(`npm pack failed for ${packageRoot}${error}`);
   }
+}
+
+function npmCommand(...args) {
+  const nodeDir = path.dirname(process.execPath);
+  const candidates = process.platform === 'win32'
+    ? [path.join(nodeDir, 'node_modules', 'npm', 'bin', 'npm-cli.js')]
+    : [path.join(path.dirname(nodeDir), 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js')];
+
+  const npmCli = candidates.find((candidate) => fs.existsSync(candidate));
+  if (npmCli) {
+    return {
+      command: process.execPath,
+      args: [npmCli, ...args],
+    };
+  }
+
+  return {
+    command: 'npm',
+    args,
+  };
 }
 
 function shouldPackMain() {

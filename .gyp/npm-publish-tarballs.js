@@ -8,10 +8,12 @@ const roots = process.argv.slice(2);
 const mainPackageName = '@kungfu-tech/libnode';
 const platformPackageRequirements = {
   '@kungfu-tech/libnode-darwin-arm64': {
-    binaries: [/^package\/dist\/node\/libnode\.\d+\.dylib$/, /^package\/dist\/node\/libnode\.dylib$/],
+    binaries: [/^package\/dist\/node\/libnode\.\d+\.dylib$/],
+    aliases: [{ target: 'package/dist/node/libnode.dylib', helper: 'package/ensure-libnode-aliases.js' }],
   },
   '@kungfu-tech/libnode-linux-x64': {
-    binaries: [/^package\/dist\/node\/libnode\.so\.\d+$/, /^package\/dist\/node\/libnode\.so$/],
+    binaries: [/^package\/dist\/node\/libnode\.so\.\d+$/],
+    aliases: [{ target: 'package/dist/node/libnode.so', helper: 'package/ensure-libnode-aliases.js' }],
   },
   '@kungfu-tech/libnode-win32-x64': {
     binaries: [/^package\/dist\/node\/libnode.*\.dll$/i, /^package\/dist\/node\/libnode.*\.lib$/i],
@@ -61,14 +63,45 @@ function listTarballEntries(file) {
     .filter(Boolean);
 }
 
+function listTarballDetails(file) {
+  const result = runCapture('tar', ['-tvf', file]);
+  if (result.status !== 0) {
+    throw new Error(`Unable to inspect ${file}: ${(result.stderr || '').trim()}`);
+  }
+
+  const details = new Map();
+  for (const line of result.stdout.split(/\r?\n/)) {
+    const entryStart = line.indexOf('package/');
+    if (entryStart === -1) continue;
+
+    let entry = line.slice(entryStart).trim();
+    const linkTarget = entry.indexOf(' -> ');
+    if (linkTarget !== -1) entry = entry.slice(0, linkTarget);
+    details.set(entry, { type: line[0] });
+  }
+  return details;
+}
+
 function verifyPlatformTarballPayload(pkg) {
   const requirements = platformPackageRequirements[pkg.name];
   if (!requirements) return;
 
   const entries = listTarballEntries(pkg.file);
+  const details = listTarballDetails(pkg.file);
   for (const pattern of requirements.binaries) {
     if (!entries.some((entry) => pattern.test(entry))) {
       throw new Error(`${packageKey(pkg)} is missing required binary matching ${pattern}`);
+    }
+  }
+
+  for (const alias of requirements.aliases || []) {
+    if (!entries.includes(alias.helper)) {
+      throw new Error(`${packageKey(pkg)} is missing alias helper ${alias.helper}`);
+    }
+
+    const target = details.get(alias.target);
+    if (target && target.type !== 'l') {
+      throw new Error(`${packageKey(pkg)} must not package ${alias.target} as a full binary copy`);
     }
   }
 

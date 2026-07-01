@@ -17,7 +17,7 @@ const platformPackages = [
     os: ['darwin'],
     cpu: ['arm64'],
     binaries: ['libnode*.dylib'],
-    aliases: [{ source: 'libnode.*.dylib', target: 'libnode.dylib' }],
+    aliases: [{ source: 'libnode.*.dylib', match: '^libnode\\.\\d+\\.dylib$', target: 'libnode.dylib' }],
   },
   {
     key: 'linux-x64',
@@ -25,7 +25,7 @@ const platformPackages = [
     os: ['linux'],
     cpu: ['x64'],
     binaries: ['libnode.so*'],
-    aliases: [{ source: 'libnode.so.*', target: 'libnode.so' }],
+    aliases: [{ source: 'libnode.so.*', match: '^libnode\\.so\\.\\d+$', target: 'libnode.so' }],
   },
   {
     key: 'win32-x64',
@@ -113,7 +113,7 @@ function verifyPlatformDist(descriptor) {
   };
 }
 
-function materializePackageAliases(packageDistDir, descriptor) {
+function linkPackageAliases(packageDistDir, descriptor) {
   for (const alias of descriptor.aliases || []) {
     const source = listFiles(packageDistDir, alias.source)
       .filter((file) => path.basename(file) !== alias.target)
@@ -126,7 +126,7 @@ function materializePackageAliases(packageDistDir, descriptor) {
 
     const target = path.join(packageDistDir, alias.target);
     fs.removeSync(target);
-    fs.copyFileSync(fs.realpathSync(source), target);
+    fs.symlinkSync(path.basename(source), target);
   }
 }
 
@@ -150,13 +150,70 @@ function writePackageReadme(packageRoot, packageName, description) {
   fs.writeFileSync(path.join(packageRoot, 'README.md'), `# ${packageName}\n\n${description}\n`);
 }
 
+function writePlatformAliasScript(packageRoot, descriptor) {
+  const aliases = (descriptor.aliases || []).map((alias) => ({
+    match: alias.match,
+    target: alias.target,
+  }));
+
+  fs.writeFileSync(
+    path.join(packageRoot, 'ensure-libnode-aliases.js'),
+    [
+      "const fs = require('fs');",
+      "const path = require('path');",
+      '',
+      `const aliases = ${JSON.stringify(aliases, null, 2)};`,
+      "const distDir = path.join(__dirname, 'dist', 'node');",
+      '',
+      'function findAliasSource(match, target) {',
+      '  const pattern = new RegExp(match);',
+      '  return fs.readdirSync(distDir).find((entry) => entry !== target && pattern.test(entry));',
+      '}',
+      '',
+      'function ensureAlias(alias) {',
+      '  const sourceName = findAliasSource(alias.match, alias.target);',
+      '  if (!sourceName) {',
+      '    throw new Error(`Unable to create ${alias.target}: no source matching ${alias.match}`);',
+      '  }',
+      '',
+      '  const target = path.join(distDir, alias.target);',
+      '  const source = path.join(distDir, sourceName);',
+      '',
+      '  try {',
+      '    if (fs.lstatSync(target).isSymbolicLink() && fs.readlinkSync(target) === sourceName) return;',
+      '    fs.rmSync(target, { force: true });',
+      '  } catch (error) {',
+      "    if (error.code !== 'ENOENT') throw error;",
+      '  }',
+      '',
+      '  try {',
+      "    fs.symlinkSync(sourceName, target, 'file');",
+      '  } catch (error) {',
+      '    fs.copyFileSync(source, target);',
+      '  }',
+      '}',
+      '',
+      'function ensureLibnodeAliases() {',
+      '  for (const alias of aliases) ensureAlias(alias);',
+      '}',
+      '',
+      'module.exports = { ensureLibnodeAliases };',
+      '',
+      'if (require.main === module) ensureLibnodeAliases();',
+      '',
+    ].join('\n'),
+  );
+}
+
 function writePlatformIndex(packageRoot) {
   fs.writeFileSync(
     path.join(packageRoot, 'index.js'),
     [
       "const path = require('path');",
+      "const { ensureLibnodeAliases } = require('./ensure-libnode-aliases.js');",
       '',
       "const distDir = path.join(__dirname, 'dist', 'node');",
+      'ensureLibnodeAliases();',
       "exports.include = path.join(distDir, 'include');",
       'exports.libpath = distDir;',
       '',
@@ -203,20 +260,27 @@ function preparePlatformPackage(descriptor) {
   const packageJson = {
     ...basePackageJson(sourcePackageJson, descriptor.name, `libnode binaries for ${descriptor.key}`),
     main: 'index.js',
-    files: ['index.js', 'dist/', 'libnode.release.json', 'LICENSE', 'README.md'],
+    files: ['index.js', 'ensure-libnode-aliases.js', 'dist/', 'libnode.release.json', 'LICENSE', 'README.md'],
     os: descriptor.os,
     cpu: descriptor.cpu,
   };
+
+  if (descriptor.aliases?.length) {
+    packageJson.scripts = {
+      postinstall: 'node ensure-libnode-aliases.js',
+    };
+  }
 
   writeJson(path.join(packageRoot, 'package.json'), packageJson);
   const packageDistDir = path.join(packageRoot, 'dist', 'node');
   fs.copySync(distDir, packageDistDir, {
     dereference: false,
   });
-  materializePackageAliases(packageDistDir, descriptor);
+  linkPackageAliases(packageDistDir, descriptor);
   copyIfExists(path.join(rootDir, 'LICENSE'), path.join(packageRoot, 'LICENSE'));
   copyIfExists(path.join(rootDir, 'libnode.release.json'), path.join(packageRoot, 'libnode.release.json'));
   writePackageReadme(packageRoot, descriptor.name, `This package contains libnode binaries for ${descriptor.key}.`);
+  writePlatformAliasScript(packageRoot, descriptor);
   writePlatformIndex(packageRoot);
   console.log(
     `verified ${descriptor.key} package payload: ${verified.binaries.join(', ')}; headers: ${verified.headers.join(', ')}`,

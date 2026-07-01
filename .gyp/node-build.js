@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const sywac = require('sywac');
+const { prepareWindowsPythonEnv } = require('./build-env.js');
 const { exitOnError, run } = require('./node-lib.js');
 
 const rootDir = path.dirname(__dirname);
@@ -8,6 +9,7 @@ const nodeGyp = require.resolve('node-gyp/bin/node-gyp.js');
 const addonModuleName = 'link_node';
 
 function runNodeGyp(args) {
+  prepareWindowsPythonEnv(process.env);
   run(process.execPath, [nodeGyp, `--module_name=${addonModuleName}`, ...args], {
     cwd: rootDir,
     env: process.env,

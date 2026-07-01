@@ -38,6 +38,10 @@ commit to a branch such as `publish-gate/alpha/v22/v22.22/22.22.3-kf.0` or
 to a locked SHA, verifies the version state from `buildchain.toml`, and the
 publish job rechecks the branch tip before touching npm.
 
+npm publication uses GitHub Trusted Publishing from the GitHub-hosted publish
+job. The workflow does not use `NPM_PUSH_TOKEN`; package access is authorized by
+the trusted publisher records on npm for this repository and workflow file.
+
 For self-hosted runners, set `KF_NODE_GIT_URL` to a local network Git service when available. `KF_NODE_REFERENCE` can also point at a runner-local bare mirror to reduce repeated object transfer. If those variables are not set, the prepare step falls back to the public Node.js GitHub repository.
 
 Compiler caching is enabled opportunistically with `KF_COMPILER_CACHE=auto` in `buildchain.toml`. Linux and macOS use `ccache` when it is installed on the runner. Windows uses Node.js `vcbuild.bat ccache <path>` mode when `ccache.exe` is available; set `KF_NODE_WIN_CCACHE_PATH` when the verified `ccache.exe`/`cl.exe` wrapper directory is not on `PATH`. Set `KF_DISABLE_COMPILER_CACHE=true` to force a clean uncached build. Unix builds default to `make -j <cpu count>`; set `KF_BUILD_JOBS=<n>` when a runner needs a lower or higher explicit job count.

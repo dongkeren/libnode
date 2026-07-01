@@ -108,3 +108,10 @@ run, and then `latest` is moved only after the full package set is verified.
 The npm package set is published or promoted in platform-first/main-last order.
 The main `@kungfu-tech/libnode` package is the last visible package so npm
 optional dependency resolution can see the platform packages immediately.
+
+The npm publish job uses npm GitHub Trusted Publishing. The job must keep
+`permissions.id-token: write`, must not provide `NODE_AUTH_TOKEN`, and must run
+on a GitHub-hosted runner so npm can exchange the GitHub OIDC token for a
+short-lived publish credential. Native Buildchain build jobs may still use
+self-hosted runners; only the npm publish job has this cloud-hosted runner
+constraint.

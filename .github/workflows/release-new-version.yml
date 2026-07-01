@@ -1,18 +1,26 @@
-name: Release - New Version
+name: Publish Gate
+
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
-      - release/v*.x
-      - release/v*/v*.*
+      - publish-gate/alpha/**
+      - publish-gate/release/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: libnode-publish-gate-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
-    if: ${{ github.event.pull_request.merged }}
     uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2
     with:
       buildchain-ref: v2
       runner-preset: kungfu-v4-self-hosted
+      publish-channel: ${{ startsWith(github.ref_name, 'publish-gate/alpha/') && 'alpha' || 'release' }}
+      publish-source-ref: ${{ github.ref_name }}
       setup-node: true
       node-version: '24'
       install-command: node .gyp/buildchain-install.js "${{ vars.KF_NODE_GIT_URL }}" "${{ vars.KF_NODE_REFERENCE }}"
@@ -28,14 +36,27 @@ jobs:
       artifact-retention-days: 14
 
   publish-npmjs:
-    if: ${{ github.event.pull_request.merged }}
+    name: Publish npm package set
     needs: [build]
+    if: ${{ needs.build.outputs.publish-allowed == 'true' }}
     runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
-      - name: Checkout
+      - name: Checkout locked source
         uses: actions/checkout@v7.0.0
+        with:
+          ref: ${{ needs.build.outputs.publish-source-sha }}
+          clean: true
+          persist-credentials: false
+
+      - name: Checkout Buildchain runtime
+        uses: actions/checkout@v7.0.0
+        with:
+          repository: kungfu-systems/buildchain
+          ref: v2
+          path: .buildchain/runtime
+          persist-credentials: false
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v6.4.0
@@ -43,12 +64,49 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Download Artifacts
+      - name: Download build artifacts
         uses: actions/download-artifact@v7.0.0
         with:
-          path: 'github-artifacts'
+          path: github-artifacts
 
-      - name: Publish NPM Tarballs
+      - name: Verify publish gate did not move
+        run: node .buildchain/runtime/scripts/verify-publish-source-lock.mjs
+        env:
+          BUILDCHAIN_PUBLISH_SOURCE_REF: ${{ needs.build.outputs.publish-source-ref }}
+          BUILDCHAIN_PUBLISH_SOURCE_SHA: ${{ needs.build.outputs.publish-source-sha }}
+          BUILDCHAIN_SOURCE_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Verify resolved release manifest
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const manifest = JSON.parse(process.env.BUILDCHAIN_RELEASE_MANIFEST_JSON);
+          if (manifest.schema !== 1) throw new Error('release manifest schema must be 1');
+          if (manifest.sourceRef !== process.env.BUILDCHAIN_PUBLISH_SOURCE_REF) {
+            throw new Error(`manifest sourceRef ${manifest.sourceRef} != ${process.env.BUILDCHAIN_PUBLISH_SOURCE_REF}`);
+          }
+          if (manifest.sourceSha !== process.env.BUILDCHAIN_PUBLISH_SOURCE_SHA) {
+            throw new Error(`manifest sourceSha ${manifest.sourceSha} != ${process.env.BUILDCHAIN_PUBLISH_SOURCE_SHA}`);
+          }
+          if (!manifest.consumerVersion) throw new Error('manifest consumerVersion is required');
+          if (!manifest.anchorManifest?.summary?.npmVersion) {
+            throw new Error('manifest anchor npmVersion is required');
+          }
+          if (manifest.anchorManifest.summary.npmVersion !== manifest.consumerVersion) {
+            throw new Error('manifest anchor npmVersion must match consumerVersion');
+          }
+          console.log(`manifest ok: ${manifest.channel} ${manifest.line} ${manifest.consumerVersion}`);
+          NODE
+        env:
+          BUILDCHAIN_RELEASE_MANIFEST_JSON: ${{ needs.build.outputs.release-manifest-json }}
+          BUILDCHAIN_PUBLISH_SOURCE_REF: ${{ needs.build.outputs.publish-source-ref }}
+          BUILDCHAIN_PUBLISH_SOURCE_SHA: ${{ needs.build.outputs.publish-source-sha }}
+
+      - name: Publish npm tarballs
         run: node .gyp/npm-publish-tarballs.js github-artifacts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUSH_TOKEN }}
+          KF_NPM_DIST_TAG: ${{ needs.build.outputs.publish-source-channel == 'alpha' && 'alpha' || 'latest' }}
+          KF_NPM_EXPECTED_VERSION: ${{ needs.build.outputs.publish-source-consumer-version }}
+          KF_NPM_RELEASE_REQUIRES_EXISTING: 'true'

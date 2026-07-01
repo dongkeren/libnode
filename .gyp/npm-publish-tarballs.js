@@ -1,8 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const childProcess = require('child_process');
+const crypto = require('crypto');
 const { exitOnError, run } = require('./node-lib.js');
 
 const roots = process.argv.slice(2);
+const mainPackageName = '@kungfu-tech/libnode';
 
 function collectTarballs(root, output) {
   const stat = fs.statSync(root);
@@ -17,19 +20,110 @@ function collectTarballs(root, output) {
   }
 }
 
-function isMainPackageTarball(file) {
-  return /^kungfu-tech-libnode-[0-9]/.test(path.basename(file));
+function runCapture(cmd, args, opts = {}) {
+  const result = childProcess.spawnSync(cmd, args, {
+    cwd: opts.cwd || process.cwd(),
+    env: process.env,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+  return result;
 }
 
-function publishTarball(file) {
-  const distTag = process.env.KF_NPM_DIST_TAG || 'latest';
-  const args = ['publish', file, '--access', 'public', '--tag', distTag];
+function readPackageJsonFromTarball(file) {
+  const result = runCapture('tar', ['-xOf', file, 'package/package.json']);
+  if (result.status !== 0) {
+    throw new Error(`Unable to read package/package.json from ${file}: ${(result.stderr || '').trim()}`);
+  }
+  return JSON.parse(result.stdout);
+}
+
+function tarballIntegrity(file) {
+  const data = fs.readFileSync(file);
+  return `sha512-${crypto.createHash('sha512').update(data).digest('base64')}`;
+}
+
+function packageKey(pkg) {
+  return `${pkg.name}@${pkg.version}`;
+}
+
+function isMainPackage(pkg) {
+  return pkg.name === mainPackageName;
+}
+
+function expectedVersion() {
+  return String(process.env.KF_NPM_EXPECTED_VERSION || '').trim();
+}
+
+function packageFromTarball(file) {
+  const packageJson = readPackageJsonFromTarball(file);
+  const name = String(packageJson.name || '').trim();
+  const version = String(packageJson.version || '').trim();
+
+  if (!name || !version) {
+    throw new Error(`Tarball ${file} must contain package name and version`);
+  }
+
+  const expected = expectedVersion();
+  if (expected && version !== expected) {
+    throw new Error(`${name} has version ${version}, expected ${expected}`);
+  }
+
+  return {
+    file,
+    name,
+    version,
+    integrity: tarballIntegrity(file),
+    main: name === mainPackageName,
+  };
+}
+
+function npmViewIntegrity(pkg) {
+  const result = runCapture('npm', ['view', packageKey(pkg), 'dist.integrity', '--json']);
+  if (result.status !== 0) {
+    const stderr = result.stderr || '';
+    if (/E404|404 Not Found|No match found/i.test(stderr)) return '';
+    throw new Error(`npm view ${packageKey(pkg)} failed: ${stderr.trim()}`);
+  }
+  const output = (result.stdout || '').trim();
+  if (!output) return '';
+  return JSON.parse(output);
+}
+
+function verifyExistingPackage(pkg, existingIntegrity) {
+  if (!existingIntegrity) return false;
+  if (existingIntegrity !== pkg.integrity) {
+    throw new Error(
+      `Existing ${packageKey(pkg)} integrity mismatch: registry ${existingIntegrity}, tarball ${pkg.integrity}`,
+    );
+  }
+  console.log(`accept existing ${packageKey(pkg)} (${existingIntegrity})`);
+  return true;
+}
+
+function releaseRequiresExisting(distTag) {
+  if (distTag !== 'latest') return false;
+  return process.env.KF_NPM_RELEASE_REQUIRES_EXISTING !== 'false';
+}
+
+function publishTarball(pkg, distTag) {
+  const args = ['publish', pkg.file, '--access', 'public', '--tag', distTag];
 
   if (process.env.KF_NPM_PUBLISH_DRY_RUN === 'true') {
     args.push('--dry-run');
   }
 
   run('npm', args);
+}
+
+function addDistTag(pkg, distTag) {
+  if (process.env.KF_NPM_PUBLISH_DRY_RUN === 'true') {
+    console.log(`[dry-run] npm dist-tag add ${packageKey(pkg)} ${distTag}`);
+    return;
+  }
+
+  run('npm', ['dist-tag', 'add', packageKey(pkg), distTag]);
 }
 
 async function main() {
@@ -42,27 +136,49 @@ async function main() {
     collectTarballs(root, tarballs);
   }
 
-  const uniqueByName = new Map();
+  const uniqueByPackage = new Map();
   for (const file of tarballs) {
-    const name = path.basename(file);
-    if (!uniqueByName.has(name)) {
-      uniqueByName.set(name, file);
+    const pkg = packageFromTarball(file);
+    const key = packageKey(pkg);
+    if (!uniqueByPackage.has(key)) {
+      uniqueByPackage.set(key, pkg);
     }
   }
 
-  const uniqueTarballs = [...uniqueByName.values()].sort((left, right) => {
-    const leftMain = isMainPackageTarball(left);
-    const rightMain = isMainPackageTarball(right);
-    if (leftMain === rightMain) return left.localeCompare(right);
-    return leftMain ? 1 : -1;
+  const packages = [...uniqueByPackage.values()].sort((left, right) => {
+    if (left.main === right.main) return left.name.localeCompare(right.name);
+    return left.main ? 1 : -1;
   });
 
-  if (uniqueTarballs.length === 0) {
+  if (packages.length === 0) {
     throw new Error(`No npm tarballs found under: ${roots.join(', ')}`);
   }
 
-  for (const file of uniqueTarballs) {
-    publishTarball(file);
+  if (!packages.some(isMainPackage)) {
+    throw new Error(`Package set must include the main package ${mainPackageName}`);
+  }
+
+  const distTag = process.env.KF_NPM_DIST_TAG || 'latest';
+  const existing = new Set();
+
+  for (const pkg of packages) {
+    const existingIntegrity = npmViewIntegrity(pkg);
+    if (verifyExistingPackage(pkg, existingIntegrity)) {
+      existing.add(packageKey(pkg));
+      continue;
+    }
+
+    if (releaseRequiresExisting(distTag)) {
+      throw new Error(`Release publish requires existing alpha package before latest promotion: ${packageKey(pkg)}`);
+    }
+
+    publishTarball(pkg, distTag);
+  }
+
+  for (const pkg of packages) {
+    if (existing.has(packageKey(pkg)) || distTag === 'latest') {
+      addDistTag(pkg, distTag);
+    }
   }
 }
 

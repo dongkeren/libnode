@@ -5,6 +5,7 @@ This project provides shared lib for [Node.js](https://nodejs.org).
 ## Usage
 
 Install via npm or pnpm:
+
 ```
 npm install @kungfu-tech/libnode
 ```
@@ -16,11 +17,13 @@ optional dependencies, such as `@kungfu-tech/libnode-darwin-arm64`,
 ### Compile and Link
 
 Get the path for shared lib for compilers:
+
 ```
 node -p "require('@kungfu-tech/libnode').libpath"
 ```
 
 Get the headers path:
+
 ```
 node -p "require('@kungfu-tech/libnode').include"
 ```
@@ -28,6 +31,12 @@ node -p "require('@kungfu-tech/libnode').include"
 ## Build with GitHub Actions
 
 The `Build` and `Release - Verify` workflows run through Kungfu Buildchain and build the Node.js version pinned by `libnode.release.json` and `.gitmodules`. Each runner packages its native output as an npm platform tarball under `build/stage/npm`.
+
+Npm publication is handled only by publish-gate branches. Push a reviewed source
+commit to a branch such as `publish-gate/alpha/v22/v22.22/22.22.3-kf.0` or
+`publish-gate/release/v22/v22.22/22.22.3-kf.0`. Buildchain resolves that branch
+to a locked SHA, verifies the version state from `buildchain.toml`, and the
+publish job rechecks the branch tip before touching npm.
 
 For self-hosted runners, set `KF_NODE_GIT_URL` to a local network Git service when available. `KF_NODE_REFERENCE` can also point at a runner-local bare mirror to reduce repeated object transfer. If those variables are not set, the prepare step falls back to the public Node.js GitHub repository.
 

@@ -74,15 +74,37 @@ versionFiles: package.json
 lifecycleStages: install, build, verify
 ```
 
-## Release Workflow
+## Publish-Gate Workflow
 
 Release verification still builds platform artifacts in this repository because
 libnode has platform-specific native outputs. Those artifacts are npm tarballs:
 one package per supported platform, plus the main package tarball from the
 Linux x64 release build.
 
-Production publishing remains gated by a reviewed PR into the release channel
-and by successful platform package builds. When the release PR is merged,
-`Release - New Version` rebuilds the matrix, publishes platform packages first,
-and publishes the main `@kungfu-tech/libnode` package last so npm optional
-dependency resolution can see the platform packages immediately.
+Actual npm publication is driven by reviewed `publish-gate/*` source branches,
+not by a merge into `release/*` alone. The branch name is the auditable release
+decision and must include the exact package version that already exists in the
+checked-out tree:
+
+```text
+publish-gate/alpha/v22/v22.22/22.22.3-kf.0
+publish-gate/release/v22/v22.22/22.22.3-kf.0
+```
+
+The `Publish Gate` workflow passes the gate branch to Buildchain as
+`publish-source-ref`. Buildchain resolves that branch to `publish-source-sha`,
+checks out and builds from the locked SHA, verifies `package.json#version`
+against the branch suffix, and emits `release-manifest-json`.
+
+Before touching npm, the publish job checks the gate branch again with
+Buildchain's `verify-publish-source-lock.mjs`. If the branch has moved since
+the build resolved it, the job fails closed and a new run is required.
+
+Alpha publication uses npm dist-tag `alpha`. Release publication uses dist-tag
+`latest`, but defaults to promotion semantics: every package tarball must
+already exist in the registry with matching integrity, normally from the alpha
+run, and then `latest` is moved only after the full package set is verified.
+
+The npm package set is published or promoted in platform-first/main-last order.
+The main `@kungfu-tech/libnode` package is the last visible package so npm
+optional dependency resolution can see the platform packages immediately.

@@ -18,10 +18,6 @@ function runNodeGyp(args) {
 
 async function build() {
   runNodeGyp(['configure', 'build']);
-  run(process.execPath, ['.gyp/node-dist.js'], {
-    cwd: rootDir,
-    env: process.env,
-  });
 }
 
 async function clean() {

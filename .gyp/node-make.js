@@ -179,7 +179,7 @@ const buildWin = () => {
 const buildUnix = () => {
   cleanNodeBuildState();
   prepareCompilerCache();
-  run('sh', [path.join('.', 'configure'), '-C', '--shared'], { cwd: nodeSrcDir });
+  run('sh', [path.join('.', 'configure'), '--shared'], { cwd: nodeSrcDir });
   run('make', ['-j', `${buildJobs()}`], { cwd: nodeSrcDir });
   showCompilerCacheStats();
 };

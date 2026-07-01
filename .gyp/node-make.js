@@ -8,8 +8,9 @@ const sywac = require('sywac');
 const convert = require('xml-js');
 
 const arch = process.arch;
-const nodeSrcDir = path.resolve('node');
-const nodeDistDir = path.join(path.dirname(__dirname), 'dist', 'node');
+const rootDir = path.dirname(__dirname);
+const nodeSrcDir = path.join(rootDir, 'node');
+const nodeDistDir = path.join(rootDir, 'dist', 'node');
 
 function flag(name) {
   return /^(1|true|yes|on)$/i.test(process.env[name] || '');
@@ -191,7 +192,7 @@ const stamp = (buildType) => {
     .filter((e) => e && e.length > 0)
     .toString()
     .trim();
-  const packageJson = JSON.parse(fs.readFileSync('package.json'));
+  const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json')));
   const userInfo = os.userInfo();
   const buildInfo = {
     version: packageJson.version,
@@ -203,7 +204,7 @@ const stamp = (buildType) => {
       timestamp: new Date(),
     },
   };
-  const targetDir = path.join('build', buildType);
+  const targetDir = path.join(rootDir, 'build', buildType);
   fse.ensureDirSync(targetDir);
   const buildInfoFile = path.join(targetDir, 'libnodebuildinfo.json');
   fs.writeFileSync(buildInfoFile, JSON.stringify(buildInfo, null, 2));

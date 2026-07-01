@@ -66,7 +66,7 @@
         "libnode",
       ],
       "sources": [
-        "<@(module_inputs)",
+        "src/cpp/link.cc",
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",

@@ -16,14 +16,14 @@
   "state_ref": "buildchain/release-state/22-22-0",
   "state_path": "/home/runner/work/libnode/libnode/.buildchain/release-state/v22.22.0.json",
   "evidence_path": "/home/runner/work/libnode/libnode/.buildchain/release-evidence/v22.22.0/evidence.json",
-  "state": "publishing",
-  "previous_state": "publish_failed",
+  "state": "publish_failed",
+  "previous_state": "publishing",
   "actor": "dongkeren",
   "run_id": "28525277774",
   "superseded_by": "",
-  "failure": "Command failed: node .gyp/npm-publish-tarballs.js github-artifacts",
+  "failure": "Command failed: npm dist-tag add @kungfu-tech/libnode-darwin-arm64@22.22.3-kf.2 latest",
   "artifacts": [],
   "evidence": [],
   "created_at": "2026-07-01T14:50:47.023Z",
-  "updated_at": "2026-07-01T16:38:01.150Z"
+  "updated_at": "2026-07-01T16:38:03.070Z"
 }

@@ -158,7 +158,8 @@ function preparePlatformPackage(descriptor) {
 
 function npmPack(packageRoot) {
   fs.ensureDirSync(stageDir);
-  const result = childProcess.spawnSync('npm', ['pack', '--pack-destination', stageDir], {
+  const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  const result = childProcess.spawnSync(npmCommand, ['pack', '--pack-destination', stageDir], {
     cwd: packageRoot,
     env: process.env,
     encoding: 'utf8',
@@ -169,7 +170,8 @@ function npmPack(packageRoot) {
   if (result.stderr) process.stderr.write(result.stderr);
 
   if (result.status !== 0) {
-    throw new Error(`npm pack failed for ${packageRoot}`);
+    const error = result.error ? `: ${result.error.message}` : '';
+    throw new Error(`npm pack failed for ${packageRoot}${error}`);
   }
 }
 

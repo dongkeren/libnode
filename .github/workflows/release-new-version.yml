@@ -117,5 +117,6 @@ jobs:
           allow-repository: ${{ github.repository }}
           require-governance: 'true'
           require-version-state: 'true'
+          required-status-check: 'build'
           publish-transaction: 'true'
           publish-required-artifacts-json: ${{ steps.evidence.outputs.required-artifacts-json }}

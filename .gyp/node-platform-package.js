@@ -363,10 +363,14 @@ async function verifySource() {
     throw new Error('package.json must not depend on @mapbox/node-pre-gyp');
   }
 
-  for (const scriptName of ['preinstall', 'install', 'prebuild']) {
+  for (const scriptName of ['preinstall', 'prebuild']) {
     if (scripts[scriptName]) {
       throw new Error(`package.json must not define ${scriptName}`);
     }
+  }
+
+  if (scripts.install !== 'node .gyp/noop-install.js') {
+    throw new Error('package.json install script must be the libnode no-op install guard');
   }
 
   for (const descriptor of platformPackages) {

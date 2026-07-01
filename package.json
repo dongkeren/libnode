@@ -4,7 +4,7 @@
     "name": "kungfu-trader",
     "email": "info@kungfu.link"
   },
-  "version": "22.22.3-kf.1",
+  "version": "22.22.3-kf.2",
   "description": "Build shared node lib",
   "license": "Apache-2.0",
   "main": "src/js/index.js",
@@ -25,6 +25,7 @@
     "README.md"
   ],
   "scripts": {
+    "install": "node .gyp/noop-install.js",
     "build": "node .gyp/node-build.js build",
     "clean": "node .gyp/node-build.js clean",
     "dist": "node .gyp/node-dist.js",

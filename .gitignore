@@ -114,6 +114,7 @@ __pypackages__/
 
 # Build related
 .buildchain/
+github-artifacts/
 build/
 build-*/
 cmake-build-debug/

@@ -1,5 +1,6 @@
 const childProcess = require('child_process');
 const fs = require('fs-extra');
+const { globSync } = require('glob');
 const path = require('path');
 const sywac = require('sywac');
 const { exitOnError } = require('./node-lib.js');
@@ -15,18 +16,21 @@ const platformPackages = [
     name: '@kungfu-tech/libnode-darwin-arm64',
     os: ['darwin'],
     cpu: ['arm64'],
+    binaries: ['libnode*.dylib'],
   },
   {
     key: 'linux-x64',
     name: '@kungfu-tech/libnode-linux-x64',
     os: ['linux'],
     cpu: ['x64'],
+    binaries: ['libnode.so*'],
   },
   {
     key: 'win32-x64',
     name: '@kungfu-tech/libnode-win32-x64',
     os: ['win32'],
     cpu: ['x64'],
+    binaries: ['libnode*.dll', 'libnode*.lib'],
   },
 ];
 
@@ -62,6 +66,45 @@ function copyIfExists(source, target) {
   if (fs.existsSync(source)) {
     fs.copySync(source, target, { dereference: false });
   }
+}
+
+function relativePackagePath(file) {
+  return path.relative(rootDir, file).split(path.sep).join('/');
+}
+
+function listDistFiles(pattern) {
+  return globSync(path.join(distDir, pattern), {
+    nodir: true,
+    windowsPathsNoEscape: true,
+  });
+}
+
+function requireDistFiles(label, pattern) {
+  const files = listDistFiles(pattern);
+  if (files.length === 0) {
+    throw new Error(`Missing ${label}: expected ${relativePackagePath(path.join(distDir, pattern))}`);
+  }
+  return files;
+}
+
+function verifyPlatformDist(descriptor) {
+  if (!fs.existsSync(distDir)) {
+    throw new Error(`Missing ${path.relative(rootDir, distDir)}. Run the build lifecycle before packaging.`);
+  }
+
+  for (const pattern of descriptor.binaries) {
+    requireDistFiles(`${descriptor.key} binary`, pattern);
+  }
+
+  const headers = [
+    ...requireDistFiles(`${descriptor.key} node headers`, path.join('include', 'node.h')),
+    ...requireDistFiles(`${descriptor.key} Node-API headers`, path.join('include', 'node_api.h')),
+  ];
+
+  return {
+    binaries: descriptor.binaries.flatMap((pattern) => listDistFiles(pattern)).map(relativePackagePath),
+    headers: headers.map(relativePackagePath),
+  };
 }
 
 function basePackageJson(sourcePackageJson, name, description) {
@@ -128,9 +171,7 @@ function prepareMainPackage() {
 }
 
 function preparePlatformPackage(descriptor) {
-  if (!fs.existsSync(distDir)) {
-    throw new Error(`Missing ${path.relative(rootDir, distDir)}. Run the build lifecycle before packaging.`);
-  }
+  const verified = verifyPlatformDist(descriptor);
 
   const sourcePackageJson = rootPackageJson();
   const packageRoot = path.join(packageBuildDir, packageDirName(descriptor.name));
@@ -152,6 +193,9 @@ function preparePlatformPackage(descriptor) {
   copyIfExists(path.join(rootDir, 'libnode.release.json'), path.join(packageRoot, 'libnode.release.json'));
   writePackageReadme(packageRoot, descriptor.name, `This package contains libnode binaries for ${descriptor.key}.`);
   writePlatformIndex(packageRoot);
+  console.log(
+    `verified ${descriptor.key} package payload: ${verified.binaries.join(', ')}; headers: ${verified.headers.join(', ')}`,
+  );
 
   return packageRoot;
 }
@@ -177,9 +221,10 @@ function npmPack(packageRoot) {
 
 function npmCommand(...args) {
   const nodeDir = path.dirname(process.execPath);
-  const candidates = process.platform === 'win32'
-    ? [path.join(nodeDir, 'node_modules', 'npm', 'bin', 'npm-cli.js')]
-    : [path.join(path.dirname(nodeDir), 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js')];
+  const candidates =
+    process.platform === 'win32'
+      ? [path.join(nodeDir, 'node_modules', 'npm', 'bin', 'npm-cli.js')]
+      : [path.join(path.dirname(nodeDir), 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js')];
 
   const npmCli = candidates.find((candidate) => fs.existsSync(candidate));
   if (npmCli) {

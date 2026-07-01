@@ -32,7 +32,7 @@ jobs:
       artifact-paths: |
         build/stage
       expected-artifacts-json: >-
-        {"minFiles":1,"minTotalBytes":1}
+        {"minFiles":1,"minTotalBytes":10000000}
       artifact-retention-days: 14
 
   publish-npmjs:

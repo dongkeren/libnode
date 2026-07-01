@@ -8,27 +8,34 @@ const dist = (buildType) => {
   const nodeDistDir = path.join('dist', 'node');
   const exts = ['.json', '.node', '.dylib', '.so', '.dll', '.lib'];
 
+  const globFiles = (pattern) =>
+    globSync(pattern, {
+      nodir: true,
+      windowsPathsNoEscape: true,
+    });
   const include = (p) => path.basename(p).includes('.so.') || exts.includes(path.extname(p));
   const match = (p) => fse.lstatSync(p).isFile() && include(p);
   const copy = (p) => fse.copySync(p, path.join(nodeDistDir, path.basename(p)));
-  const copyFiles = (pattern) => globSync(pattern).filter(match).forEach(copy);
+  const copyFiles = (pattern) => globFiles(pattern).filter(match).forEach(copy);
   const copyHeaders = (source) => {
     const target = path.join(nodeDistDir, 'include');
-    globSync(path.join(source, '**', '*.h')).forEach((p) => {
-      header = path.resolve(p);
-      fse.copySync(header, path.join(target, header.replace(source, '')));
+    const sourceRoot = path.resolve(source);
+    globFiles(path.join(sourceRoot, '**', '*.h')).forEach((p) => {
+      const header = path.resolve(p);
+      fse.copySync(header, path.join(target, path.relative(sourceRoot, header)));
     });
   };
   const makeSymbolLink = (pattern, ext) => {
     const target = path.join(nodeDistDir, `libnode.${ext}`);
     const link = (p) => fse.symlinkSync(path.basename(p), target);
-    globSync(path.join(nodeDistDir, pattern)).sort().reverse().slice(0, 1).forEach(link);
+    globFiles(path.join(nodeDistDir, pattern)).sort().reverse().slice(0, 1).forEach(link);
   };
 
   fse.ensureDirSync(nodeDistDir);
   fse.emptyDirSync(nodeDistDir);
 
   copyFiles(path.join('build', buildType, '*.*'));
+  copyFiles(path.join('node', buildType, 'libnode*'));
   copyFiles(path.join('node', 'out', buildType, 'libnode*'));
 
   copyHeaders(path.resolve('node', 'src'));

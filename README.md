@@ -33,8 +33,8 @@ node -p "require('@kungfu-tech/libnode').include"
 The `Build` and `Release - Verify` workflows run through Kungfu Buildchain and build the Node.js version pinned by `libnode.release.json` and `.gitmodules`. Each runner packages its native output as an npm platform tarball under `build/stage/npm`.
 
 Npm publication is handled only by publish-gate branches. Push a reviewed source
-commit to a branch such as `publish-gate/alpha/v22/v22.22/22.22.3-kf.0` or
-`publish-gate/release/v22/v22.22/22.22.3-kf.0`. Buildchain resolves that branch
+commit to a branch such as `publish-gate/alpha/v22/v22.22/<npm-version>` or
+`publish-gate/release/v22/v22.22/<npm-version>`. Buildchain resolves that branch
 to a locked SHA, verifies the version state from `buildchain.toml`, and the
 publish job rechecks the branch tip before touching npm.
 

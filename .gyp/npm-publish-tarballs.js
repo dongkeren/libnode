@@ -6,6 +6,17 @@ const { exitOnError, run } = require('./node-lib.js');
 
 const roots = process.argv.slice(2);
 const mainPackageName = '@kungfu-tech/libnode';
+const platformPackageRequirements = {
+  '@kungfu-tech/libnode-darwin-arm64': {
+    binaries: [/^package\/dist\/node\/libnode.*\.dylib$/],
+  },
+  '@kungfu-tech/libnode-linux-x64': {
+    binaries: [/^package\/dist\/node\/libnode\.so(?:\.|$)/],
+  },
+  '@kungfu-tech/libnode-win32-x64': {
+    binaries: [/^package\/dist\/node\/libnode.*\.dll$/i, /^package\/dist\/node\/libnode.*\.lib$/i],
+  },
+};
 
 function collectTarballs(root, output) {
   const stat = fs.statSync(root);
@@ -39,6 +50,35 @@ function readPackageJsonFromTarball(file) {
   return JSON.parse(result.stdout);
 }
 
+function listTarballEntries(file) {
+  const result = runCapture('tar', ['-tzf', file]);
+  if (result.status !== 0) {
+    throw new Error(`Unable to list ${file}: ${(result.stderr || '').trim()}`);
+  }
+  return result.stdout
+    .split(/\r?\n/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function verifyPlatformTarballPayload(pkg) {
+  const requirements = platformPackageRequirements[pkg.name];
+  if (!requirements) return;
+
+  const entries = listTarballEntries(pkg.file);
+  for (const pattern of requirements.binaries) {
+    if (!entries.some((entry) => pattern.test(entry))) {
+      throw new Error(`${packageKey(pkg)} is missing required binary matching ${pattern}`);
+    }
+  }
+
+  for (const header of ['package/dist/node/include/node.h', 'package/dist/node/include/node_api.h']) {
+    if (!entries.includes(header)) {
+      throw new Error(`${packageKey(pkg)} is missing required header ${header}`);
+    }
+  }
+}
+
 function tarballIntegrity(file) {
   const data = fs.readFileSync(file);
   return `sha512-${crypto.createHash('sha512').update(data).digest('base64')}`;
@@ -70,13 +110,15 @@ function packageFromTarball(file) {
     throw new Error(`${name} has version ${version}, expected ${expected}`);
   }
 
-  return {
+  const pkg = {
     file,
     name,
     version,
     integrity: tarballIntegrity(file),
     main: name === mainPackageName,
   };
+  verifyPlatformTarballPayload(pkg);
+  return pkg;
 }
 
 function npmViewIntegrity(pkg) {

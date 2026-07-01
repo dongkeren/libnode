@@ -1,16 +1,16 @@
-name: Publish Gate
+name: Release - New Version
 
 on:
   push:
     branches:
-      - publish-gate/alpha/**
-      - publish-gate/release/**
+      - alpha/v*/v*.*
+      - release/v*/v*.*
 
 permissions:
   contents: read
 
 concurrency:
-  group: libnode-publish-gate-${{ github.ref }}
+  group: libnode-release-new-version-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -19,8 +19,7 @@ jobs:
     with:
       buildchain-ref: v2
       runner-preset: kungfu-v4-self-hosted
-      publish-channel: ${{ startsWith(github.ref_name, 'publish-gate/alpha/') && 'alpha' || 'release' }}
-      publish-source-ref: ${{ github.ref_name }}
+      publish-channel: ${{ startsWith(github.ref_name, 'alpha/') && 'alpha' || 'release' }}
       setup-node: true
       node-version: '24'
       install-command: node .gyp/buildchain-install.js "${{ vars.KF_NODE_GIT_URL }}" "${{ vars.KF_NODE_REFERENCE }}"
@@ -35,28 +34,21 @@ jobs:
         {"minFiles":1,"minTotalBytes":10000000}
       artifact-retention-days: 14
 
-  publish-npmjs:
-    name: Publish npm package set
+  publish-transaction:
+    name: Publish npm package set through Buildchain
     needs: [build]
     if: ${{ needs.build.outputs.publish-allowed == 'true' }}
     runs-on: ubuntu-24.04
     permissions:
-      contents: read
+      actions: read
+      contents: write
       id-token: write
     steps:
-      - name: Checkout locked source
+      - name: Checkout promoted source
         uses: actions/checkout@v7.0.0
         with:
           ref: ${{ needs.build.outputs.publish-source-sha }}
           clean: true
-          persist-credentials: false
-
-      - name: Checkout Buildchain runtime
-        uses: actions/checkout@v7.0.0
-        with:
-          repository: kungfu-systems/buildchain
-          ref: v2
-          path: .buildchain/runtime
           persist-credentials: false
 
       - name: Setup Node.js environment
@@ -70,43 +62,60 @@ jobs:
         with:
           path: github-artifacts
 
-      - name: Verify publish gate did not move
-        run: node .buildchain/runtime/scripts/verify-publish-source-lock.mjs
-        env:
-          BUILDCHAIN_PUBLISH_SOURCE_REF: ${{ needs.build.outputs.publish-source-ref }}
-          BUILDCHAIN_PUBLISH_SOURCE_SHA: ${{ needs.build.outputs.publish-source-sha }}
-          BUILDCHAIN_SOURCE_REPOSITORY: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ github.token }}
-
       - name: Verify resolved release manifest
         shell: bash
         run: |
           node - <<'NODE'
           const manifest = JSON.parse(process.env.BUILDCHAIN_RELEASE_MANIFEST_JSON);
+          const channel = process.env.BUILDCHAIN_CHANNEL;
+          const sourceSha = process.env.BUILDCHAIN_SOURCE_SHA;
           if (manifest.schema !== 1) throw new Error('release manifest schema must be 1');
-          if (manifest.sourceRef !== process.env.BUILDCHAIN_PUBLISH_SOURCE_REF) {
-            throw new Error(`manifest sourceRef ${manifest.sourceRef} != ${process.env.BUILDCHAIN_PUBLISH_SOURCE_REF}`);
+          if (manifest.sourceSha !== sourceSha) {
+            throw new Error(`manifest sourceSha ${manifest.sourceSha} != ${sourceSha}`);
           }
-          if (manifest.sourceSha !== process.env.BUILDCHAIN_PUBLISH_SOURCE_SHA) {
-            throw new Error(`manifest sourceSha ${manifest.sourceSha} != ${process.env.BUILDCHAIN_PUBLISH_SOURCE_SHA}`);
+          if (manifest.channel !== 'none') {
+            throw new Error(`channel branch release must not use publish-gate source lock, got ${manifest.channel}`);
           }
-          if (!manifest.consumerVersion) throw new Error('manifest consumerVersion is required');
-          if (!manifest.anchorManifest?.summary?.npmVersion) {
-            throw new Error('manifest anchor npmVersion is required');
+          const npmVersion = manifest.anchorManifest?.summary?.npmVersion;
+          if (!npmVersion) throw new Error('manifest anchor npmVersion is required');
+          const versionFile = (manifest.versionFiles || []).find((file) => file.path === 'package.json');
+          if (!versionFile || versionFile.version !== npmVersion) {
+            throw new Error(`package.json version ${versionFile?.version || '<missing>'} != anchor npmVersion ${npmVersion}`);
           }
-          if (manifest.anchorManifest.summary.npmVersion !== manifest.consumerVersion) {
-            throw new Error('manifest anchor npmVersion must match consumerVersion');
-          }
-          console.log(`manifest ok: ${manifest.channel} ${manifest.line} ${manifest.consumerVersion}`);
+          console.log(`manifest ok: ${channel} ${npmVersion} ${sourceSha}`);
           NODE
         env:
           BUILDCHAIN_RELEASE_MANIFEST_JSON: ${{ needs.build.outputs.release-manifest-json }}
-          BUILDCHAIN_PUBLISH_SOURCE_REF: ${{ needs.build.outputs.publish-source-ref }}
-          BUILDCHAIN_PUBLISH_SOURCE_SHA: ${{ needs.build.outputs.publish-source-sha }}
+          BUILDCHAIN_CHANNEL: ${{ needs.build.outputs.publish-channel }}
+          BUILDCHAIN_SOURCE_SHA: ${{ needs.build.outputs.publish-source-sha }}
 
-      - name: Publish npm tarballs
-        run: node .gyp/npm-publish-tarballs.js github-artifacts
+      - name: Prepare Buildchain publish evidence requirements
+        id: evidence
+        shell: bash
+        run: |
+          node .gyp/npm-publish-tarballs.js \
+            --write-buildchain-required-artifacts .buildchain/required-artifacts.json \
+            github-artifacts
+          {
+            echo 'required-artifacts-json<<JSON'
+            cat .buildchain/required-artifacts.json
+            echo 'JSON'
+          } >> "${GITHUB_OUTPUT}"
         env:
-          KF_NPM_DIST_TAG: ${{ needs.build.outputs.publish-source-channel == 'alpha' && 'alpha' || 'latest' }}
-          KF_NPM_EXPECTED_VERSION: ${{ needs.build.outputs.publish-source-consumer-version }}
+          KF_NPM_EXPECTED_VERSION: ${{ fromJSON(needs.build.outputs.release-manifest-json).anchorManifest.summary.npmVersion }}
+
+      - name: Promote release ref and publish npm package set
+        uses: kungfu-systems/buildchain/actions/promote-buildchain-ref@v2
+        env:
+          KF_NPM_DIST_TAG: ${{ needs.build.outputs.publish-channel == 'alpha' && 'alpha' || 'latest' }}
+          KF_NPM_EXPECTED_VERSION: ${{ fromJSON(needs.build.outputs.release-manifest-json).anchorManifest.summary.npmVersion }}
           KF_NPM_RELEASE_REQUIRES_EXISTING: 'true'
+        with:
+          token: ${{ secrets.BUILDCHAIN_PROMOTION_TOKEN || github.token }}
+          sha: ${{ needs.build.outputs.publish-source-sha }}
+          target-ref: ${{ github.ref_name }}
+          allow-repository: ${{ github.repository }}
+          require-governance: 'true'
+          require-version-state: 'true'
+          publish-transaction: 'true'
+          publish-required-artifacts-json: ${{ steps.evidence.outputs.required-artifacts-json }}

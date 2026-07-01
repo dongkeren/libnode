@@ -71,10 +71,10 @@ versionStrategy: anchored
 versionNext: manual
 anchorManifest: libnode.release.json
 versionFiles: package.json
-lifecycleStages: install, build, verify
+lifecycleStages: install, build, verify, publish
 ```
 
-## Publish-Gate Workflow
+## Release - New Version Workflow
 
 Release verification still builds platform artifacts in this repository because
 libnode has platform-specific native outputs. Those artifacts are npm tarballs:
@@ -85,24 +85,26 @@ The release chain does not publish native binaries to AWS/S3. GitHub Actions
 artifacts are only the handoff between the Buildchain build job and the npm
 publish job, and npm is the release distribution surface.
 
-Actual npm publication is driven by reviewed `publish-gate/*` source branches,
-not by a merge into `release/*` alone. The branch name is the auditable release
-decision and must include the exact package version that already exists in the
-checked-out tree:
+Actual npm publication is driven by reviewed Buildchain channel promotion, not
+by ad hoc publish branches. A merge into `alpha/vN/vN.M` publishes the package
+set with npm dist-tag `alpha`. A merge into `release/vN/vN.M` promotes the same
+package version to npm dist-tag `latest`.
 
 ```text
-publish-gate/alpha/v22/v22.22/22.22.3-kf.0
-publish-gate/release/v22/v22.22/22.22.3-kf.0
+alpha/v22/v22.22
+release/v22/v22.22
 ```
 
-The `Publish Gate` workflow passes the gate branch to Buildchain as
-`publish-source-ref`. Buildchain resolves that branch to `publish-source-sha`,
-checks out and builds from the locked SHA, verifies `package.json#version`
-against the branch suffix, and emits `release-manifest-json`.
+The `Release - New Version` workflow first runs Buildchain `.build.yml@v2`
+against the channel branch tip. The publish job then calls
+`promote-buildchain-ref@v2` with `publish-transaction: true`, so npm publication
+and Buildchain ref/tag promotion are one transaction with durable
+`buildchain/release-state/<version>` state and `BUILDCHAIN_PUBLISH_EVIDENCE`.
 
-Before touching npm, the publish job checks the gate branch again with
-Buildchain's `verify-publish-source-lock.mjs`. If the branch has moved since
-the build resolved it, the job fails closed and a new run is required.
+Before touching npm, the publish job verifies that `package.json#version` and
+`libnode.release.json` agree on the exact npm version. The branch name only
+selects the Buildchain release line; it does not carry or override the package
+version.
 
 Alpha publication uses npm dist-tag `alpha`. Release publication uses dist-tag
 `latest`, but defaults to npm registry verification semantics: every package

@@ -4,7 +4,7 @@ const childProcess = require('child_process');
 const crypto = require('crypto');
 const { exitOnError, run } = require('./node-lib.js');
 
-const roots = process.argv.slice(2);
+const args = process.argv.slice(2);
 const mainPackageName = '@kungfu-tech/libnode';
 const platformPackageRequirements = {
   '@kungfu-tech/libnode-darwin-arm64': {
@@ -19,6 +19,23 @@ const platformPackageRequirements = {
     binaries: [/^package\/dist\/node\/libnode.*\.dll$/i, /^package\/dist\/node\/libnode.*\.lib$/i],
   },
 };
+
+function readOption(name) {
+  const index = args.indexOf(name);
+  if (index === -1) return '';
+  const value = args[index + 1];
+  if (!value || value.startsWith('--')) {
+    throw new Error(`${name} requires a value`);
+  }
+  return value;
+}
+
+const requiredArtifactsPath = readOption('--write-buildchain-required-artifacts');
+const roots = args.filter((arg, index) => {
+  if (arg === '--write-buildchain-required-artifacts') return false;
+  if (index > 0 && args[index - 1] === '--write-buildchain-required-artifacts') return false;
+  return true;
+});
 
 function collectTarballs(root, output) {
   const stat = fs.statSync(root);
@@ -115,6 +132,17 @@ function verifyPlatformTarballPayload(pkg) {
 function tarballIntegrity(file) {
   const data = fs.readFileSync(file);
   return `sha512-${crypto.createHash('sha512').update(data).digest('base64')}`;
+}
+
+function buildchainArtifact(pkg) {
+  return {
+    group: 'libnode',
+    kind: 'npm',
+    name: pkg.name,
+    ref: pkg.version,
+    digest: pkg.integrity,
+    required: true,
+  };
 }
 
 function packageKey(pkg) {
@@ -216,6 +244,32 @@ function addDistTag(pkg, distTag) {
   run('npm', ['dist-tag', 'add', packageKey(pkg), distTag]);
 }
 
+function writeJson(file, value) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function writeBuildchainPublishEvidence(packages) {
+  const evidencePath = process.env.BUILDCHAIN_PUBLISH_EVIDENCE;
+  if (!evidencePath) return;
+
+  const evidence = {
+    schema: 1,
+    version: process.env.BUILDCHAIN_VERSION || expectedVersion() || packages[0].version,
+    channel: process.env.BUILDCHAIN_CHANNEL || (process.env.KF_NPM_DIST_TAG === 'latest' ? 'release' : 'alpha'),
+    source_sha: process.env.BUILDCHAIN_SOURCE_SHA || process.env.GITHUB_SHA || '',
+    release_sha:
+      process.env.BUILDCHAIN_RELEASE_SHA || process.env.BUILDCHAIN_SOURCE_SHA || process.env.GITHUB_SHA || '',
+    target_ref: process.env.BUILDCHAIN_TARGET_REF || '',
+    release_material_sha: process.env.BUILDCHAIN_RELEASE_MATERIAL_SHA || process.env.BUILDCHAIN_RELEASE_SHA || '',
+    publish_tooling_sha: process.env.BUILDCHAIN_PUBLISH_TOOLING_SHA || process.env.BUILDCHAIN_RELEASE_SHA || '',
+    artifacts: packages.map(buildchainArtifact),
+  };
+
+  writeJson(evidencePath, evidence);
+  console.log(`wrote buildchain publish evidence: ${evidencePath}`);
+}
+
 async function main() {
   if (roots.length === 0) {
     throw new Error('Usage: node .gyp/npm-publish-tarballs.js <artifact-dir> [...]');
@@ -246,6 +300,12 @@ async function main() {
 
   verifyPackageSet(packages);
 
+  if (requiredArtifactsPath) {
+    writeJson(requiredArtifactsPath, packages.map(buildchainArtifact));
+    console.log(`wrote buildchain required artifacts: ${requiredArtifactsPath}`);
+    return;
+  }
+
   const distTag = process.env.KF_NPM_DIST_TAG || 'latest';
   const existing = new Set();
 
@@ -268,6 +328,8 @@ async function main() {
       addDistTag(pkg, distTag);
     }
   }
+
+  writeBuildchainPublishEvidence(packages);
 }
 
 if (require.main === module) main().catch(exitOnError);

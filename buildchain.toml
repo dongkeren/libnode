@@ -39,3 +39,7 @@ commands = [
   "corepack pnpm verify-package-source",
   "git diff --check",
 ]
+
+[lifecycle.publish]
+timeout_minutes = 20
+command = "node .gyp/npm-publish-tarballs.js github-artifacts"

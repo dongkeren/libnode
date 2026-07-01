@@ -5,13 +5,20 @@
       "<(module_root_dir)/.gitmodules",
     ],
     "libnode_inputs": [
-      "<!@(node -p \"require('glob').globSync('node/**/*.*(h|cc|S)', {ignore:'node/out/**'}).join(' ');\")",
+      "<(module_root_dir)/package.json",
+      "<(module_root_dir)/libnode.release.json",
+      "<(module_root_dir)/node/node.gyp",
     ],
     "module_inputs": [
-      "<!@(node -p \"require('glob').globSync('src/**/*.*(h|cc)').join(' ');\")",
+      "<(module_root_dir)/src/cpp/link.cc",
+      "<(module_root_dir)/src/js/index.js",
     ],
     "gyp_inputs": [
-      "<!@(node -p \"require('glob').globSync('.gyp/**/*.*(js|py)').join(' ');\")",
+      "<(module_root_dir)/binding.gyp",
+      "<(module_root_dir)/.gyp/gyp_action_lib.py",
+      "<(module_root_dir)/.gyp/gyp_action_node.py",
+      "<(module_root_dir)/.gyp/node-dist.js",
+      "<(module_root_dir)/.gyp/node-make.js",
     ],
   },
   "targets": [

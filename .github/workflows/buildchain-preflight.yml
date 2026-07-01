@@ -29,4 +29,4 @@ jobs:
         with:
           config-required: 'true'
           require-version-state: 'true'
-          require-lifecycle-stages: 'install,build,verify'
+          require-lifecycle-stages: 'install,build,verify,publish'

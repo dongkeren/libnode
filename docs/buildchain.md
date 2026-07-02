@@ -87,8 +87,8 @@ publish job, and npm is the release distribution surface.
 
 Actual npm publication is driven by reviewed Buildchain channel promotion, not
 by ad hoc publish branches. A merge into `alpha/vN/vN.M` publishes the package
-set with npm dist-tag `alpha`. A merge into `release/vN/vN.M` promotes the same
-package version to npm dist-tag `latest`.
+set with npm dist-tag `alpha`. A merge into `release/vN/vN.M` publishes the
+final package set with npm dist-tag `latest`.
 
 ```text
 alpha/v22/v22.22
@@ -106,13 +106,14 @@ Before touching npm, the publish job verifies that `package.json#version` and
 selects the Buildchain release line; it does not carry or override the package
 version.
 
-Alpha publication uses npm dist-tag `alpha`. Release publication uses dist-tag
-`latest`, but defaults to npm registry verification semantics: every package
-tarball must already exist in the registry with matching integrity, normally
-from the alpha run, and then `latest` is moved only after the full package set
-is verified.
+Alpha publication uses npm dist-tag `alpha` and should use an npm prerelease
+version such as `22.22.3-kf.3-alpha.0`. Release publication uses dist-tag
+`latest` and should use the corresponding final npm version such as
+`22.22.3-kf.3`. Both paths use `publish-final-version` through Buildchain and
+GitHub Trusted Publishing; same-version alpha-to-latest dist-tag promotion is a
+manual recovery mode, not the normal release path.
 
-The npm package set is published or retagged in platform-first/main-last order.
+The npm package set is published in platform-first/main-last order.
 The main `@kungfu-tech/libnode` package is the last visible package so npm
 optional dependency resolution can see the platform packages immediately.
 

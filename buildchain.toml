@@ -11,6 +11,12 @@ type = "json"
 path = "package.json"
 key = "version"
 
+[publish]
+mode = "publish-final-version"
+auth = "trusted-publishing"
+package_set_order = "platforms-first-main-last"
+main_package = "@kungfu-tech/libnode"
+
 [lifecycle]
 
 [lifecycle.env]

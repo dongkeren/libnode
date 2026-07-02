@@ -34,13 +34,14 @@ The `Build` and `Release - Verify` workflows run through Kungfu Buildchain and b
 
 Npm publication is handled only by Buildchain channel promotion. A reviewed
 merge into `alpha/vN/vN.M` publishes the package set with dist-tag `alpha`; a
-reviewed merge into `release/vN/vN.M` promotes the already-published package set
-to dist-tag `latest`. The exact npm version is read from `package.json` and
+reviewed merge into `release/vN/vN.M` publishes the final package set with
+dist-tag `latest`. The exact npm version is read from `package.json` and
 `libnode.release.json`, not from the branch name.
 
 npm publication uses GitHub Trusted Publishing from the GitHub-hosted publish
-job. The workflow does not use `NPM_PUSH_TOKEN`; package access is authorized by
-the trusted publisher records on npm for this repository and workflow file.
+job. The workflow does not use `NPM_PUSH_TOKEN` or npm dist-tag recovery tokens
+for the normal path; package access is authorized by the trusted publisher
+records on npm for this repository and workflow file.
 
 For self-hosted runners, set `KF_NODE_GIT_URL` to a local network Git service when available. `KF_NODE_REFERENCE` can also point at a runner-local bare mirror to reduce repeated object transfer. If those variables are not set, the prepare step falls back to the public Node.js GitHub repository.
 

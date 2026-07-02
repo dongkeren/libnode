@@ -4,7 +4,6 @@ const { globSync } = require('glob');
 const path = require('path');
 const sywac = require('sywac');
 const { exitOnError } = require('./node-lib.js');
-const { snapshot, timeSync } = require('./buildchain-diagnostics.js');
 
 const rootDir = path.dirname(__dirname);
 const distDir = path.join(rootDir, 'dist', 'node');
@@ -337,25 +336,22 @@ function shouldPackMain() {
 }
 
 async function packMain() {
-  timeSync('prepare-main-package', () => npmPack(prepareMainPackage()));
+  npmPack(prepareMainPackage());
 }
 
 async function packPlatform() {
-  timeSync('prepare-platform-package', () => npmPack(preparePlatformPackage(currentPlatformPackage())));
+  npmPack(preparePlatformPackage(currentPlatformPackage()));
 }
 
 async function pack() {
-  await snapshot('package-start');
   await packPlatform();
 
   if (shouldPackMain()) {
     await packMain();
   }
-  await snapshot('package-end');
 }
 
 async function verifySource() {
-  await snapshot('verify-package-source-start');
   const sourcePackageJson = rootPackageJson();
   const scripts = sourcePackageJson.scripts || {};
 
@@ -382,7 +378,6 @@ async function verifySource() {
       throw new Error(`Unexpected platform package name: ${descriptor.name}`);
     }
   }
-  await snapshot('verify-package-source-end');
 }
 
 async function main() {

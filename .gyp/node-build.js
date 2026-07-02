@@ -3,7 +3,6 @@ const path = require('path');
 const sywac = require('sywac');
 const { prepareWindowsPythonEnv } = require('./build-env.js');
 const { exitOnError, run } = require('./node-lib.js');
-const { snapshot, timeSync } = require('./buildchain-diagnostics.js');
 
 const rootDir = path.dirname(__dirname);
 const nodeGyp = require.resolve('node-gyp/bin/node-gyp.js');
@@ -11,16 +10,14 @@ const addonModuleName = 'link_node';
 
 function runNodeGyp(args) {
   prepareWindowsPythonEnv(process.env);
-  return run(process.execPath, [nodeGyp, `--module_name=${addonModuleName}`, ...args], {
+  run(process.execPath, [nodeGyp, `--module_name=${addonModuleName}`, ...args], {
     cwd: rootDir,
     env: process.env,
   });
 }
 
 async function build() {
-  await snapshot('node-gyp-build-start');
-  timeSync('node-gyp-configure-build', () => runNodeGyp(['configure', 'build']));
-  await snapshot('node-gyp-build-end');
+  runNodeGyp(['configure', 'build']);
 }
 
 async function clean() {

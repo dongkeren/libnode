@@ -1,5 +1,4 @@
 const { exitOnError, run } = require('./node-lib.js');
-const { snapshot, timeSync } = require('./buildchain-diagnostics.js');
 
 const [nodeGitUrl, nodeReference] = process.argv.slice(2);
 
@@ -12,11 +11,8 @@ if (nodeReference) {
 }
 
 async function main() {
-  await snapshot('install-start');
-  timeSync('pnpm-install', () => run('corepack', ['pnpm', 'install', '--frozen-lockfile', '--ignore-scripts']));
-  await snapshot('install-after-pnpm');
-  timeSync('prepare-node-source', () => run('corepack', ['pnpm', 'prepare-node-source']));
-  await snapshot('install-end');
+  run('corepack', ['pnpm', 'install', '--frozen-lockfile', '--ignore-scripts']);
+  run('corepack', ['pnpm', 'prepare-node-source']);
 }
 
 if (require.main === module) main().catch(exitOnError);

@@ -31,27 +31,23 @@ KF_COMPILER_CACHE = "auto"
 [lifecycle.install]
 timeout_minutes = 10
 commands = [
-  "node .gyp/buildchain-install.js",
+  "corepack pnpm install --frozen-lockfile --ignore-scripts",
+  "corepack pnpm prepare-node-source",
 ]
 
 [lifecycle.build]
 timeout_minutes = 240
 commands = [
-  "node .gyp/buildchain-diagnostics.js snapshot lifecycle-build-start",
   "corepack pnpm build",
-  "node .gyp/buildchain-diagnostics.js snapshot lifecycle-build-after-node-gyp",
   "corepack pnpm package",
-  "node .gyp/buildchain-diagnostics.js snapshot lifecycle-build-end",
 ]
 
 [lifecycle.verify]
 timeout_minutes = 10
 commands = [
-  "node .gyp/buildchain-diagnostics.js snapshot lifecycle-verify-start",
   "corepack pnpm verify-release",
   "corepack pnpm verify-package-source",
   "git diff --check",
-  "node .gyp/buildchain-diagnostics.js snapshot lifecycle-verify-end",
 ]
 
 [lifecycle.publish]

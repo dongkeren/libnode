@@ -32,11 +32,15 @@ node -p "require('@kungfu-tech/libnode').include"
 
 The `Build` and `Release - Verify` workflows run through Kungfu Buildchain and build the Node.js version pinned by `libnode.release.json` and `.gitmodules`. Each runner packages its native output as an npm platform tarball under `build/stage/npm`.
 
-Npm publication is handled only by Buildchain channel promotion. A reviewed
-merge into `alpha/vN/vN.M` publishes the package set with dist-tag `alpha`; a
-reviewed merge into `release/vN/vN.M` publishes the final package set with
-dist-tag `latest`. The exact npm version is read from `package.json` and
-`libnode.release.json`, not from the branch name.
+Npm publication is handled only by Buildchain publish-gate promotion. Reviewed
+channel branches prepare release material; package publication enters through
+`publish-gate/alpha/<line>/<version>` for dist-tag `alpha` or
+`publish-gate/release/<line>/<version>` for dist-tag `latest`. The reusable
+Buildchain workflow locks that gate branch to an exact source SHA before build
+and publish, and the promotion action rejects publish side effects unless the
+same source-lock protocol is present. The exact npm version is read from
+`package.json` and `libnode.release.json`, and must match the publish-gate
+consumer version.
 
 npm publication uses GitHub Trusted Publishing from the GitHub-hosted publish
 job. The workflow does not use `NPM_PUSH_TOKEN` or npm dist-tag recovery tokens

@@ -12,9 +12,6 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
     devDependencies:
-      '@kungfu-tech/buildchain':
-        specifier: 2.2.5
-        version: 2.2.5
       fs-extra:
         specifier: ^11.3.6
         version: 11.3.6
@@ -39,11 +36,6 @@ packages:
   '@isaacs/fs-minipass@4.0.1':
     resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
     engines: {node: '>=18.0.0'}
-
-  '@kungfu-tech/buildchain@2.2.5':
-    resolution: {integrity: sha512-QxXUtxOhhbiInZHWZz2yQPsILWec/Ab9/YmoA3uPc1eqYD6/cofaw7C7N+xUrCOk6qht2BaIWeiG3aurazbuKg==}
-    engines: {node: '>=22.14.0'}
-    hasBin: true
 
   abbrev@5.0.0:
     resolution: {integrity: sha512-/XrFJgzQQQHpti1raDJC6m4ws6aNktmjBlhk8Fdlk7LwCEuDoieEJJY9OFHjfiFJFFRM2tK+Ky/IsfbbmlMu1w==}
@@ -151,10 +143,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  smol-toml@1.7.0:
-    resolution: {integrity: sha512-aqVvWoyO21L23mb+drl4RmMXbf6N7FdHjAhTRA9ZBL7apWBgfWC16KjrASI+1p9GAroljyMHj6fK67i0UiTNvQ==}
-    engines: {node: '>= 18'}
-
   sywac@1.3.0:
     resolution: {integrity: sha512-LDt2stNTp4bVPMgd70Jj9PWrSa4batl+bv+Ea5NLNGT7ufc4oQPtRfQ73wbddNV6RilaPqnEt6y1Wkm5FVTNEg==}
     engines: {node: '>=4'}
@@ -193,10 +181,6 @@ snapshots:
   '@isaacs/fs-minipass@4.0.1':
     dependencies:
       minipass: 7.1.3
-
-  '@kungfu-tech/buildchain@2.2.5':
-    dependencies:
-      smol-toml: 1.7.0
 
   abbrev@5.0.0: {}
 
@@ -283,8 +267,6 @@ snapshots:
   sax@1.6.0: {}
 
   semver@7.8.5: {}
-
-  smol-toml@1.7.0: {}
 
   sywac@1.3.0: {}
 

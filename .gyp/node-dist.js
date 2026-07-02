@@ -3,6 +3,7 @@ const fse = require('fs-extra');
 const { globSync } = require('glob');
 const path = require('path');
 const sywac = require('sywac');
+const { snapshot, timeSync } = require('./buildchain-diagnostics.js');
 
 const rootDir = path.dirname(__dirname);
 
@@ -58,7 +59,9 @@ module.exports = cli;
 
 async function main() {
   const argv = await cli.parseAndExit();
-  dist(argv['build-type']);
+  await snapshot('node-dist-start');
+  timeSync('node-dist-assemble', () => dist(argv['build-type']));
+  await snapshot('node-dist-end');
 }
 
 if (require.main === module) main().catch(exitOnError);

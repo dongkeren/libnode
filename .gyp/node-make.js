@@ -6,6 +6,7 @@ const path = require('path');
 const os = require('os');
 const sywac = require('sywac');
 const convert = require('xml-js');
+const { snapshot, timeSync } = require('./buildchain-diagnostics.js');
 
 const arch = process.arch;
 const rootDir = path.dirname(__dirname);
@@ -84,22 +85,24 @@ function prepareCompilerCache() {
   if (mode === '0' || mode === 'false' || mode === 'off' || mode === 'none') return [];
 
   if (process.platform === 'win32') {
-    return prepareWindowsCompilerCache(mode);
+    return timeSync('prepare-windows-compiler-cache', () => prepareWindowsCompilerCache(mode));
   }
 
-  if (!prepareUnixCompilerCache(mode)) {
+  if (!timeSync('prepare-unix-compiler-cache', () => prepareUnixCompilerCache(mode))) {
     console.log('compiler cache: unavailable');
   }
   return [];
 }
 
 function showCompilerCacheStats() {
-  if (process.env.CCACHE_DIR && commandExists('ccache')) {
-    runCacheTool('ccache', ['--show-stats']);
-  }
-  if (process.env.SCCACHE_DIR && commandExists('sccache')) {
-    runCacheTool('sccache', ['--show-stats']);
-  }
+  timeSync('compiler-cache-stats', () => {
+    if (process.env.CCACHE_DIR && commandExists('ccache')) {
+      runCacheTool('ccache', ['--show-stats']);
+    }
+    if (process.env.SCCACHE_DIR && commandExists('sccache')) {
+      runCacheTool('sccache', ['--show-stats']);
+    }
+  });
 }
 
 function cleanNodeBuildState() {
@@ -167,20 +170,27 @@ const runWinPatch = () => {
 
 const buildWin = () => {
   patchEnv();
-  cleanNodeBuildState();
-  prepareWindowsPythonEnv();
+  timeSync('clean-node-build-state', cleanNodeBuildState);
+  timeSync('prepare-windows-python-env', prepareWindowsPythonEnv);
   const cacheArgs = prepareCompilerCache();
-  run(path.join('.', 'vcbuild.bat'), ['dll', arch, 'release', 'projgen', 'nobuild', ...cacheArgs], { cwd: nodeSrcDir });
-  runWinPatch();
-  run(path.join('.', 'vcbuild.bat'), ['dll', 'noprojgen', ...cacheArgs], { cwd: nodeSrcDir });
+  timeSync('vcbuild-projgen', () =>
+    run(path.join('.', 'vcbuild.bat'), ['dll', arch, 'release', 'projgen', 'nobuild', ...cacheArgs], {
+      cwd: nodeSrcDir,
+    }),
+  );
+  timeSync('windows-vcxproj-patch', runWinPatch);
+  timeSync('vcbuild-dll', () =>
+    run(path.join('.', 'vcbuild.bat'), ['dll', 'noprojgen', ...cacheArgs], { cwd: nodeSrcDir }),
+  );
   showCompilerCacheStats();
 };
 
 const buildUnix = () => {
-  cleanNodeBuildState();
+  timeSync('clean-node-build-state', cleanNodeBuildState);
   prepareCompilerCache();
-  run('sh', [path.join('.', 'configure'), '--shared'], { cwd: nodeSrcDir });
-  run('make', ['-j', `${buildJobs()}`], { cwd: nodeSrcDir });
+  console.log(`build jobs: ${buildJobs()}`);
+  timeSync('node-configure-shared', () => run('sh', [path.join('.', 'configure'), '--shared'], { cwd: nodeSrcDir }));
+  timeSync('node-make-shared', () => run('make', ['-j', `${buildJobs()}`], { cwd: nodeSrcDir }));
   showCompilerCacheStats();
 };
 
@@ -220,8 +230,10 @@ module.exports = cli;
 
 async function main() {
   const argv = await cli.parseAndExit();
-  build();
-  stamp(argv['build-type']);
+  await snapshot('node-make-start');
+  timeSync('node-native-build', build);
+  timeSync('node-native-stamp', () => stamp(argv['build-type']));
+  await snapshot('node-make-end');
 }
 
 if (require.main === module && !process.env.KF_SKIP_MAKE_LIBNODE) main().catch(exitOnError);

@@ -1,6 +1,7 @@
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { snapshot, timeSync } = require('./buildchain-diagnostics.js');
 
 const repoRoot = path.resolve(__dirname, '..');
 const release = JSON.parse(fs.readFileSync(path.join(repoRoot, 'libnode.release.json'), 'utf8'));
@@ -166,7 +167,8 @@ function updateFrom(url, referencePath) {
   return false;
 }
 
-function main() {
+async function main() {
+  await snapshot('node-source-prepare-start');
   const gitmodulesTag = gitmodules('submodule.node.tag');
   if (gitmodulesTag !== release.nodeTag) {
     throw new Error(`node submodule tag mismatch: expected ${release.nodeTag}, got ${gitmodulesTag}`);
@@ -174,15 +176,19 @@ function main() {
 
   if (nodeIsReady()) {
     console.log(`node source already prepared: ${release.nodeCommit}`);
+    await snapshot('node-source-prepare-ready');
     return;
   }
 
   const configuredUrl =
     process.env.KF_NODE_GIT_URL || process.env.KF_NODE_GIT_MIRROR || gitmodules('submodule.node.url') || defaultNodeUrl;
   const referencePath = usableReferencePath();
-  resetIncompleteNodeCheckout();
-  if (updateFrom(configuredUrl, referencePath)) {
-    if (nodeIsReady()) return;
+  timeSync('node-source-reset-incomplete-checkout', resetIncompleteNodeCheckout);
+  if (timeSync('node-source-update-configured', () => updateFrom(configuredUrl, referencePath))) {
+    if (nodeIsReady()) {
+      await snapshot('node-source-prepare-end');
+      return;
+    }
     throw new Error(`node checkout mismatch after update: expected ${release.nodeCommit}, got ${currentNodeHead()}`);
   }
 
@@ -191,9 +197,13 @@ function main() {
   }
 
   console.warn(`retrying node source prepare from ${defaultNodeUrl}`);
-  if (!updateFrom(defaultNodeUrl, referencePath) || !nodeIsReady()) {
+  if (!timeSync('node-source-update-default', () => updateFrom(defaultNodeUrl, referencePath)) || !nodeIsReady()) {
     throw new Error(`node checkout mismatch after fallback: expected ${release.nodeCommit}, got ${currentNodeHead()}`);
   }
+  await snapshot('node-source-prepare-end');
 }
 
-main();
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

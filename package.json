@@ -37,6 +37,7 @@
     "rebuild": "node .gyp/node-build.js rebuild",
     "verify-release": "node .gyp/libnode-release-verify.js",
     "verify-package-source": "node .gyp/node-platform-package.js verify-source",
+    "buildchain:validate": "buildchain validate --require-version-state --require-lifecycle-stages install,build,verify,publish",
     "format": "prettier --write --parser typescript .gyp/*.js src/js/*.js"
   },
   "packageManager": "pnpm@11.9.0",
@@ -44,6 +45,7 @@
     "sywac": "^1.3.0"
   },
   "devDependencies": {
+    "@kungfu-tech/buildchain": "2.2.2",
     "fs-extra": "^11.3.6",
     "glob": "^13.0.6",
     "node-addon-api": "^8.9.0",

@@ -16,9 +16,9 @@ concurrency:
 
 jobs:
   build:
-    uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2
+    uses: kungfu-systems/buildchain/.github/workflows/.build.yml@feature/toolkit-diagnostics-feedback
     with:
-      buildchain-ref: v2
+      buildchain-ref: feature/toolkit-diagnostics-feedback
       runner-preset: kungfu-v4-self-hosted
       publish-channel: ${{ startsWith(github.ref_name, 'publish-gate/alpha/') && 'alpha' || startsWith(github.ref_name, 'publish-gate/release/') && 'release' || 'major' }}
       publish-source-ref: ${{ github.ref_name }}
@@ -116,7 +116,7 @@ jobs:
           KF_NPM_EXPECTED_VERSION: ${{ fromJSON(needs.build.outputs.release-manifest-json).anchorManifest.summary.npmVersion }}
 
       - name: Promote release ref and publish npm package set
-        uses: kungfu-systems/buildchain/actions/promote-buildchain-ref@v2
+        uses: kungfu-systems/buildchain/actions/promote-buildchain-ref@feature/toolkit-diagnostics-feedback
         env:
           KF_NPM_DIST_TAG: ${{ needs.build.outputs.publish-channel == 'alpha' && 'alpha' || 'latest' }}
           KF_NPM_EXPECTED_VERSION: ${{ fromJSON(needs.build.outputs.release-manifest-json).anchorManifest.summary.npmVersion }}

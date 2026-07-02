@@ -141,6 +141,7 @@ function buildchainArtifact(pkg) {
     name: pkg.name,
     ref: pkg.version,
     digest: pkg.integrity,
+    role: isMainPackage(pkg) ? 'main' : 'platform',
     required: true,
   };
 }
@@ -220,9 +221,8 @@ function verifyExistingPackage(pkg, existingIntegrity) {
   return true;
 }
 
-function releaseRequiresExisting(distTag) {
-  if (distTag !== 'latest') return false;
-  return process.env.KF_NPM_RELEASE_REQUIRES_EXISTING !== 'false';
+function publishMode() {
+  return process.env.BUILDCHAIN_PUBLISH_MODE || 'publish-final-version';
 }
 
 function publishTarball(pkg, distTag) {
@@ -306,7 +306,11 @@ async function main() {
     return;
   }
 
-  const distTag = process.env.KF_NPM_DIST_TAG || 'latest';
+  const distTag = process.env.BUILDCHAIN_NPM_DIST_TAG || process.env.KF_NPM_DIST_TAG || 'latest';
+  const mode = publishMode();
+  if (!['publish-final-version', 'promote-existing-version'].includes(mode)) {
+    throw new Error(`Unsupported Buildchain publish mode: ${mode}`);
+  }
   const existing = new Set();
 
   for (const pkg of packages) {
@@ -316,15 +320,15 @@ async function main() {
       continue;
     }
 
-    if (releaseRequiresExisting(distTag)) {
-      throw new Error(`Release publish requires existing alpha package before latest promotion: ${packageKey(pkg)}`);
+    if (mode === 'promote-existing-version') {
+      throw new Error(`Existing-version promotion requires registry package before dist-tag move: ${packageKey(pkg)}`);
     }
 
     publishTarball(pkg, distTag);
   }
 
-  for (const pkg of packages) {
-    if (existing.has(packageKey(pkg)) || distTag === 'latest') {
+  if (mode === 'promote-existing-version') {
+    for (const pkg of packages) {
       addDistTag(pkg, distTag);
     }
   }

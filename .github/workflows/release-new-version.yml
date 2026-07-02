@@ -109,7 +109,6 @@ jobs:
         env:
           KF_NPM_DIST_TAG: ${{ needs.build.outputs.publish-channel == 'alpha' && 'alpha' || 'latest' }}
           KF_NPM_EXPECTED_VERSION: ${{ fromJSON(needs.build.outputs.release-manifest-json).anchorManifest.summary.npmVersion }}
-          KF_NPM_RELEASE_REQUIRES_EXISTING: 'true'
         with:
           token: ${{ secrets.BUILDCHAIN_PROMOTION_TOKEN || github.token }}
           sha: ${{ needs.build.outputs.publish-source-sha }}
@@ -119,4 +118,9 @@ jobs:
           require-version-state: 'true'
           required-status-check: 'build'
           publish-transaction: 'true'
+          publish-mode: publish-final-version
+          publish-auth: trusted-publishing
+          publish-dist-tag: ${{ needs.build.outputs.publish-channel == 'alpha' && 'alpha' || 'latest' }}
+          publish-package-set-order: platforms-first-main-last
+          publish-package-main: '@kungfu-tech/libnode'
           publish-required-artifacts-json: ${{ steps.evidence.outputs.required-artifacts-json }}

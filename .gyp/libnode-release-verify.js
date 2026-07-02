@@ -50,7 +50,13 @@ function verifyReleaseManifest() {
   if (!Number.isInteger(release.libnodeRevision) || release.libnodeRevision < 0) {
     fail('libnodeRevision must be a non-negative integer');
   }
-  assertEqual(release.npmVersion, `${release.nodeVersion}-kf.${release.libnodeRevision}`, 'npmVersion');
+  const stableNpmVersion = `${release.nodeVersion}-kf.${release.libnodeRevision}`;
+  if (
+    release.npmVersion !== stableNpmVersion &&
+    !new RegExp(`^${stableNpmVersion}-alpha\\.\\d+$`).test(release.npmVersion)
+  ) {
+    fail(`npmVersion must be ${stableNpmVersion} or ${stableNpmVersion}-alpha.N`);
+  }
 }
 
 function verifyPackageVersion() {

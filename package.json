@@ -37,7 +37,7 @@
     "rebuild": "node .gyp/node-build.js rebuild",
     "verify-release": "node .gyp/libnode-release-verify.js",
     "verify-package-source": "node .gyp/node-platform-package.js verify-source",
-    "buildchain:validate": "buildchain validate --require-version-state --require-lifecycle-stages install,build,verify,publish",
+    "buildchain:validate": "node .gyp/buildchain-validate.js",
     "format": "prettier --write --parser typescript .gyp/*.js src/js/*.js"
   },
   "packageManager": "pnpm@11.9.0",

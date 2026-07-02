@@ -11,6 +11,11 @@ type = "json"
 path = "package.json"
 key = "version"
 
+[[version.files]]
+type = "json"
+path = "libnode.release.json"
+key = "npmVersion"
+
 [publish]
 mode = "publish-final-version"
 auth = "trusted-publishing"

@@ -1,0 +1,2 @@
+minimumReleaseAgeExclude:
+  - '@kungfu-tech/buildchain@2.2.5'

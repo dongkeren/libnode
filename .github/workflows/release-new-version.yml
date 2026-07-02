@@ -3,8 +3,9 @@ name: Release - New Version
 on:
   push:
     branches:
-      - alpha/v*/v*.*
-      - release/v*/v*.*
+      - publish-gate/alpha/**
+      - publish-gate/release/**
+      - publish-gate/major
 
 permissions:
   contents: read
@@ -19,7 +20,8 @@ jobs:
     with:
       buildchain-ref: v2
       runner-preset: kungfu-v4-self-hosted
-      publish-channel: ${{ startsWith(github.ref_name, 'alpha/') && 'alpha' || 'release' }}
+      publish-channel: ${{ startsWith(github.ref_name, 'publish-gate/alpha/') && 'alpha' || startsWith(github.ref_name, 'publish-gate/release/') && 'release' || 'major' }}
+      publish-source-ref: ${{ github.ref_name }}
       setup-node: true
       node-version: '24'
       install-command: node .gyp/buildchain-install.js "${{ vars.KF_NODE_GIT_URL }}" "${{ vars.KF_NODE_REFERENCE }}"
@@ -73,8 +75,14 @@ jobs:
           if (manifest.sourceSha !== sourceSha) {
             throw new Error(`manifest sourceSha ${manifest.sourceSha} != ${sourceSha}`);
           }
-          if (manifest.channel !== 'none') {
-            throw new Error(`channel branch release must not use publish-gate source lock, got ${manifest.channel}`);
+          if (!manifest.sourceLocked) {
+            throw new Error('release publication requires a publish-gate source lock');
+          }
+          if (!['alpha', 'release', 'major'].includes(manifest.channel)) {
+            throw new Error(`unsupported publish-gate channel: ${manifest.channel}`);
+          }
+          if ((manifest.channel === 'alpha' || manifest.channel === 'release') && !manifest.consumerVersion) {
+            throw new Error('publish-gate alpha/release source lock must include a consumer version');
           }
           const npmVersion = manifest.anchorManifest?.summary?.npmVersion;
           if (!npmVersion) throw new Error('manifest anchor npmVersion is required');
@@ -82,7 +90,10 @@ jobs:
           if (!versionFile || versionFile.version !== npmVersion) {
             throw new Error(`package.json version ${versionFile?.version || '<missing>'} != anchor npmVersion ${npmVersion}`);
           }
-          console.log(`manifest ok: ${channel} ${npmVersion} ${sourceSha}`);
+          if (manifest.consumerVersion && manifest.consumerVersion !== npmVersion) {
+            throw new Error(`publish-gate consumer version ${manifest.consumerVersion} != anchor npmVersion ${npmVersion}`);
+          }
+          console.log(`manifest ok: ${channel} ${manifest.sourceRef} ${npmVersion} ${sourceSha}`);
           NODE
         env:
           BUILDCHAIN_RELEASE_MANIFEST_JSON: ${{ needs.build.outputs.release-manifest-json }}
@@ -112,7 +123,7 @@ jobs:
         with:
           token: ${{ secrets.BUILDCHAIN_PROMOTION_TOKEN || github.token }}
           sha: ${{ needs.build.outputs.publish-source-sha }}
-          target-ref: ${{ github.ref_name }}
+          target-ref: ${{ needs.build.outputs.publish-source-channel == 'major' && 'publish-gate/major' || format('{0}/{1}', needs.build.outputs.publish-source-channel, needs.build.outputs.publish-source-line) }}
           allow-repository: ${{ github.repository }}
           require-governance: 'true'
           require-version-state: 'true'
@@ -123,4 +134,8 @@ jobs:
           publish-dist-tag: ${{ needs.build.outputs.publish-channel == 'alpha' && 'alpha' || 'latest' }}
           publish-package-set-order: platforms-first-main-last
           publish-package-main: '@kungfu-tech/libnode'
+          require-publish-source-lock: 'true'
+          publish-source-ref: ${{ needs.build.outputs.publish-source-ref }}
+          publish-source-sha: ${{ needs.build.outputs.publish-source-sha }}
+          publish-source-locked: ${{ needs.build.outputs.publish-source-locked }}
           publish-required-artifacts-json: ${{ steps.evidence.outputs.required-artifacts-json }}

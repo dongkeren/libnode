@@ -28,6 +28,27 @@ main_package = "@kungfu-tech/libnode"
 KF_SKIP_FALLBACK_BUILD = "true"
 KF_COMPILER_CACHE = "auto"
 
+[diagnostics.native]
+enabled = true
+sample_process_tree = true
+compiler_cache = "auto"
+expected_tools = ["node", "pnpm", "git", "python", "make", "cmake", "ninja", "ccache", "sccache", "clang", "cl"]
+artifact_dirs = ["dist/node", "build/Release", "build/stage", "build/npm", "node/out/Release"]
+cache_dirs = [
+  "/Users/gha-runner/.cache/kungfu/build-cache/ccache/libnode/darwin-arm64",
+  "/Users/gha-runner/.cache/kungfu/build-cache/sccache/libnode/darwin-arm64",
+  "/home/gha-runner/.cache/kungfu/build-cache/ccache/libnode/linux-x64",
+  "/home/gha-runner/.cache/kungfu/build-cache/sccache/libnode/linux-x64",
+  "/home/runner/.cache/kungfu/build-cache/ccache/libnode/linux-x64",
+  "/home/runner/.cache/kungfu/build-cache/sccache/libnode/linux-x64",
+  "/data/actions-runner/.cache/kungfu/build-cache/ccache/libnode/linux-x64",
+  "/data/actions-runner/.cache/kungfu/build-cache/sccache/libnode/linux-x64",
+  "C:/Users/gha-runner/AppData/Local/Kungfu/build-cache/ccache/libnode/win32-x64",
+  "C:/Users/gha-runner/AppData/Local/Kungfu/build-cache/sccache/libnode/win32-x64",
+  "C:/Users/runneradmin/AppData/Local/Kungfu/build-cache/ccache/libnode/win32-x64",
+  "C:/Users/runneradmin/AppData/Local/Kungfu/build-cache/sccache/libnode/win32-x64",
+]
+
 [lifecycle.install]
 timeout_minutes = 10
 commands = [

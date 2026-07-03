@@ -126,7 +126,9 @@ function linkPackageAliases(packageDistDir, descriptor) {
 
     const target = path.join(packageDistDir, alias.target);
     fs.removeSync(target);
-    fs.symlinkSync(path.basename(source), target);
+    // npm pack drops symlink entries. A same-directory hardlink keeps the
+    // unversioned linker name in the tarball without duplicating the payload.
+    fs.linkSync(source, target);
   }
 }
 

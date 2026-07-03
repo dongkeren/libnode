@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2.4.1
+    uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2
     with:
       runner-preset: kungfu-v4-self-hosted
       setup-node: true

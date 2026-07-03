@@ -17,7 +17,7 @@
     "releaseMaterialSha": "735ffdf6654f34ef299092c7a9c31b646546d425",
     "publishToolingSha": "735ffdf6654f34ef299092c7a9c31b646546d425",
     "releaseStateRef": "refs/heads/buildchain/release-state/22-22-3-kf-3-alpha-7",
-    "releaseStateSha": "",
+    "releaseStateSha": "09310739c0cc149184a694a60d6eb1cc54868cb5",
     "package": {
       "name": "@kungfu-tech/libnode",
       "version": "22.22.3-kf.3-alpha.7"

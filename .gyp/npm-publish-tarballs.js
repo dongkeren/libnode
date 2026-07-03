@@ -92,8 +92,13 @@ function listTarballDetails(file) {
     if (entryStart === -1) continue;
 
     let entry = line.slice(entryStart).trim();
-    const linkTarget = entry.indexOf(' -> ');
-    if (linkTarget !== -1) entry = entry.slice(0, linkTarget);
+    for (const separator of [' -> ', ' link to ']) {
+      const linkTarget = entry.indexOf(separator);
+      if (linkTarget !== -1) {
+        entry = entry.slice(0, linkTarget);
+        break;
+      }
+    }
     details.set(entry, { type: line[0] });
   }
   return details;
@@ -117,8 +122,13 @@ function verifyPlatformTarballPayload(pkg) {
     }
 
     const target = details.get(alias.target);
-    if (target && target.type !== 'l') {
-      throw new Error(`${packageKey(pkg)} must not package ${alias.target} as a full binary copy`);
+    if (!target) {
+      throw new Error(`${packageKey(pkg)} is missing required alias ${alias.target}`);
+    }
+    if (!['h', 'l'].includes(target.type)) {
+      throw new Error(
+        `${packageKey(pkg)} must package ${alias.target} as a hardlink or symlink alias, not a full binary copy`,
+      );
     }
   }
 

@@ -1,27 +1,12 @@
 {
   "schema": 1,
-  "id": "76f3036d600eabfcd8bc29d94ea8df744fc4e70dca5db66d2f00a9cd4d26f062",
-  "repository": "kungfu-systems/libnode",
-  "target_ref": "alpha/v22/v22.22",
+  "version": "22.22.3-kf.3-alpha.7",
+  "channel": "alpha",
   "source_sha": "735ffdf6654f34ef299092c7a9c31b646546d425",
   "release_sha": "735ffdf6654f34ef299092c7a9c31b646546d425",
+  "target_ref": "alpha/v22/v22.22",
   "release_material_sha": "735ffdf6654f34ef299092c7a9c31b646546d425",
   "publish_tooling_sha": "735ffdf6654f34ef299092c7a9c31b646546d425",
-  "version": "22.22.3-kf.3-alpha.7",
-  "exact_tag": "v22.22.1-alpha.1",
-  "channel": "alpha",
-  "line": "v22.22",
-  "version_strategy": "",
-  "lifecycle_identity": "lifecycle.publish",
-  "state_ref": "buildchain/release-state/22-22-3-kf-3-alpha-7",
-  "state_path": "/home/runner/work/libnode/libnode/.buildchain/release-state/v22.22.1-alpha.1.json",
-  "evidence_path": "/home/runner/work/libnode/libnode/.buildchain/release-evidence/v22.22.1-alpha.1/evidence.json",
-  "state": "published",
-  "previous_state": "publishing",
-  "actor": "dongkeren",
-  "run_id": "28680896077",
-  "superseded_by": "",
-  "failure": "other side closed",
   "artifacts": [
     {
       "group": "libnode",
@@ -59,11 +44,5 @@
       "role": "main",
       "required": true
     }
-  ],
-  "evidence": [
-    ".buildchain/release-evidence/v22.22.1-alpha.1/evidence.json",
-    ".buildchain/release-evidence/v22.22.1-alpha.1/dist-tag-evidence.json"
-  ],
-  "created_at": "2026-07-03T20:19:40.327Z",
-  "updated_at": "2026-07-03T20:20:33.579Z"
+  ]
 }

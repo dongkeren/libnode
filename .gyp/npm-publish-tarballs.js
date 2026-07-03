@@ -110,6 +110,7 @@ function verifyPlatformTarballPayload(pkg) {
 
   const entries = listTarballEntries(pkg.file);
   const details = listTarballDetails(pkg.file);
+  const scripts = pkg.packageJson.scripts || {};
   for (const pattern of requirements.binaries) {
     if (!entries.some((entry) => pattern.test(entry))) {
       throw new Error(`${packageKey(pkg)} is missing required binary matching ${pattern}`);
@@ -121,13 +122,14 @@ function verifyPlatformTarballPayload(pkg) {
       throw new Error(`${packageKey(pkg)} is missing alias helper ${alias.helper}`);
     }
 
-    const target = details.get(alias.target);
-    if (!target) {
-      throw new Error(`${packageKey(pkg)} is missing required alias ${alias.target}`);
+    if (scripts.postinstall !== 'node ensure-libnode-aliases.js') {
+      throw new Error(`${packageKey(pkg)} must reconstruct libnode aliases from postinstall`);
     }
-    if (!['h', 'l'].includes(target.type)) {
+
+    const target = details.get(alias.target);
+    if (target) {
       throw new Error(
-        `${packageKey(pkg)} must package ${alias.target} as a hardlink or symlink alias, not a full binary copy`,
+        `${packageKey(pkg)} must not package ${alias.target}; npm install must materialize it from ${alias.helper}`,
       );
     }
   }
@@ -186,6 +188,7 @@ function packageFromTarball(file) {
     file,
     name,
     version,
+    packageJson,
     integrity: tarballIntegrity(file),
     main: name === mainPackageName,
     optionalDependencies: packageJson.optionalDependencies || {},

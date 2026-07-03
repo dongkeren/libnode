@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "contract": "kungfu-buildchain-release-passport",
+  "generatedAt": "2026-07-03T17:53:00.525Z",
+  "product": {
+    "name": "Libnode",
+    "repository": "kungfu-systems/libnode",
+    "mechanism": "product-mechanism.json"
+  },
+  "release": {
+    "tag": "v22.22.1-alpha.0",
+    "line": "v22.22",
+    "sourceSha": "29ade6f29252d7d90f517a3c2b87f43216ef453b",
+    "channel": "alpha",
+    "targetRef": "alpha/v22/v22.22",
+    "releaseSha": "29ade6f29252d7d90f517a3c2b87f43216ef453b",
+    "releaseMaterialSha": "29ade6f29252d7d90f517a3c2b87f43216ef453b",
+    "publishToolingSha": "29ade6f29252d7d90f517a3c2b87f43216ef453b",
+    "releaseStateRef": "refs/heads/buildchain/release-state/22-22-3-kf-3-alpha-5",
+    "releaseStateSha": "",
+    "package": {
+      "name": "@kungfu-tech/libnode",
+      "version": "22.22.3-kf.3-alpha.5"
+    },
+    "exactRef": "refs/tags/v22.22.1-alpha.0"
+  },
+  "workflow": {
+    "name": "Release - New Version",
+    "runId": "28674745621",
+    "runAttempt": "2",
+    "url": "https://github.com/kungfu-systems/libnode/actions/runs/28674745621"
+  },
+  "runnerPolicy": {
+    "productionDefault": "github-hosted",
+    "compatibilityFixture": "self-hosted",
+    "note": "Runner facts are recorded in artifact evidence; the protocol does not require self-hosted runners."
+  },
+  "packageSet": {
+    "order": "platforms-first-main-last",
+    "registry": "https://registry.npmjs.org/",
+    "main": {
+      "name": "@kungfu-tech/libnode",
+      "version": "22.22.3-kf.3-alpha.5",
+      "distTag": "alpha",
+      "digest": "sha512-4RgcEcwiyjfoxa8cy1Q04WundwcPyBBWDNk71V8f7KUA4ROGRNoLAmORTbWkmX1457yH0FUzLRxNWbMQ3l79JQ==",
+      "registry": "https://registry.npmjs.org/",
+      "platform": "",
+      "action": ""
+    },
+    "platforms": [
+      {
+        "name": "@kungfu-tech/libnode-darwin-arm64",
+        "version": "22.22.3-kf.3-alpha.5",
+        "distTag": "alpha",
+        "digest": "sha512-J/6+wwb/QDo/BZ11lum4duI1UQ+Ca4ov2DtPaFT52FGt+Lyt8Jz0IhK8fSsI4RULlNtcsKPCQwd+JaT2OiRdMw==",
+        "registry": "https://registry.npmjs.org/",
+        "platform": "",
+        "action": ""
+      },
+      {
+        "name": "@kungfu-tech/libnode-linux-x64",
+        "version": "22.22.3-kf.3-alpha.5",
+        "distTag": "alpha",
+        "digest": "sha512-7PWN6tBQTcTtuglS42AjOA286BR5yiZraTOOGiH8oiWWWDOA+VyKEn2osmDpcIMZhl02i9rde9xPZURpFf6+Nw==",
+        "registry": "https://registry.npmjs.org/",
+        "platform": "",
+        "action": ""
+      },
+      {
+        "name": "@kungfu-tech/libnode-win32-x64",
+        "version": "22.22.3-kf.3-alpha.5",
+        "distTag": "alpha",
+        "digest": "sha512-ELZNZTy1bcmE0NjRs6ClZNylntGNENaQrPmXvctP0IjCv3yjL+bvuvyBPCJXt/W75007QBM6BY3OkwrsQLVdAg==",
+        "registry": "https://registry.npmjs.org/",
+        "platform": "",
+        "action": ""
+      }
+    ]
+  },
+  "publish": {
+    "registry": "https://registry.npmjs.org/",
+    "channel": "alpha",
+    "distTag": "alpha",
+    "source": "packageSet+publishEvidence",
+    "packages": [
+      {
+        "role": "main",
+        "name": "@kungfu-tech/libnode",
+        "publishedVersion": "22.22.3-kf.3-alpha.5",
+        "distTag": "alpha",
+        "digest": "sha512-4RgcEcwiyjfoxa8cy1Q04WundwcPyBBWDNk71V8f7KUA4ROGRNoLAmORTbWkmX1457yH0FUzLRxNWbMQ3l79JQ==",
+        "registry": "https://registry.npmjs.org/",
+        "platform": "",
+        "action": ""
+      },
+      {
+        "role": "platform",
+        "name": "@kungfu-tech/libnode-darwin-arm64",
+        "publishedVersion": "22.22.3-kf.3-alpha.5",
+        "distTag": "alpha",
+        "digest": "sha512-J/6+wwb/QDo/BZ11lum4duI1UQ+Ca4ov2DtPaFT52FGt+Lyt8Jz0IhK8fSsI4RULlNtcsKPCQwd+JaT2OiRdMw==",
+        "registry": "https://registry.npmjs.org/",
+        "platform": "",
+        "action": ""
+      },
+      {
+        "role": "platform",
+        "name": "@kungfu-tech/libnode-linux-x64",
+        "publishedVersion": "22.22.3-kf.3-alpha.5",
+        "distTag": "alpha",
+        "digest": "sha512-7PWN6tBQTcTtuglS42AjOA286BR5yiZraTOOGiH8oiWWWDOA+VyKEn2osmDpcIMZhl02i9rde9xPZURpFf6+Nw==",
+        "registry": "https://registry.npmjs.org/",
+        "platform": "",
+        "action": ""
+      },
+      {
+        "role": "platform",
+        "name": "@kungfu-tech/libnode-win32-x64",
+        "publishedVersion": "22.22.3-kf.3-alpha.5",
+        "distTag": "alpha",
+        "digest": "sha512-ELZNZTy1bcmE0NjRs6ClZNylntGNENaQrPmXvctP0IjCv3yjL+bvuvyBPCJXt/W75007QBM6BY3OkwrsQLVdAg==",
+        "registry": "https://registry.npmjs.org/",
+        "platform": "",
+        "action": ""
+      }
+    ]
+  },
+  "anchorManifest": {
+    "path": "/home/runner/work/libnode/libnode/libnode.release.json",
+    "sha256": "793739fba89e1b84acfd5d23a1618cdbb1d5f9c7c186b475129fb536f8b9177c",
+    "fields": {
+      "schema": 1,
+      "nodeVersion": "22.22.3",
+      "nodeTag": "v22.22.3",
+      "nodeCommit": "fdfa0ff0dbaf0fbf4d7d6d89a2ab807f3177fa5c",
+      "libnodeRevision": 3,
+      "npmVersion": "22.22.3-kf.3-alpha.5"
+    }
+  },
+  "trustedPublishing": {
+    "provider": "npm",
+    "enabled": true,
+    "auth": "trusted-publishing",
+    "workflowRunId": "28674745621",
+    "workflowRunAttempt": "2",
+    "evidence": ""
+  },
+  "transaction": {
+    "id": "99ff5b21c6d9d0fae93f3ea8840873c724442970a4baaabf6990112f58de5971",
+    "version": "22.22.3-kf.3-alpha.5",
+    "state": "complete",
+    "previousState": "finalizing",
+    "exactTag": "v22.22.1-alpha.0",
+    "releaseSha": "29ade6f29252d7d90f517a3c2b87f43216ef453b",
+    "releaseMaterialSha": "29ade6f29252d7d90f517a3c2b87f43216ef453b",
+    "stateRef": "buildchain/release-state/22-22-3-kf-3-alpha-5",
+    "statePath": "/home/runner/work/libnode/libnode/.buildchain/release-state/v22.22.1-alpha.0.json",
+    "stateSha": "",
+    "evidencePath": "/home/runner/work/libnode/libnode/.buildchain/release-evidence/v22.22.1-alpha.0/evidence.json",
+    "updatedAt": "2026-07-03T17:52:58.795Z",
+    "result": {
+      "command": "finalize",
+      "validation": {
+        "valid": true,
+        "errors": []
+      }
+    }
+  },
+  "distTagPromotion": {
+    "path": "../release-evidence/v22.22.1-alpha.0/dist-tag-evidence.json",
+    "sha256": "911274f8e1f1593f87ddf357388cd7bf7229ffa817eb51b0d1a07e187ab9902d",
+    "fields": {
+      "schema": 1,
+      "contract": "kungfu-buildchain-dist-tag-promotion-evidence",
+      "mode": "publish-final-version",
+      "auth": "trusted-publishing",
+      "distTag": "alpha",
+      "source": "existing-evidence",
+      "packages": [
+        {
+          "name": "@kungfu-tech/libnode-darwin-arm64",
+          "version": "22.22.3-kf.3-alpha.5",
+          "distTag": "alpha",
+          "role": "platform",
+          "digest": "sha512-J/6+wwb/QDo/BZ11lum4duI1UQ+Ca4ov2DtPaFT52FGt+Lyt8Jz0IhK8fSsI4RULlNtcsKPCQwd+JaT2OiRdMw=="
+        },
+        {
+          "name": "@kungfu-tech/libnode-linux-x64",
+          "version": "22.22.3-kf.3-alpha.5",
+          "distTag": "alpha",
+          "role": "platform",
+          "digest": "sha512-7PWN6tBQTcTtuglS42AjOA286BR5yiZraTOOGiH8oiWWWDOA+VyKEn2osmDpcIMZhl02i9rde9xPZURpFf6+Nw=="
+        },
+        {
+          "name": "@kungfu-tech/libnode-win32-x64",
+          "version": "22.22.3-kf.3-alpha.5",
+          "distTag": "alpha",
+          "role": "platform",
+          "digest": "sha512-ELZNZTy1bcmE0NjRs6ClZNylntGNENaQrPmXvctP0IjCv3yjL+bvuvyBPCJXt/W75007QBM6BY3OkwrsQLVdAg=="
+        },
+        {
+          "name": "@kungfu-tech/libnode",
+          "version": "22.22.3-kf.3-alpha.5",
+          "distTag": "alpha",
+          "role": "main",
+          "digest": "sha512-4RgcEcwiyjfoxa8cy1Q04WundwcPyBBWDNk71V8f7KUA4ROGRNoLAmORTbWkmX1457yH0FUzLRxNWbMQ3l79JQ=="
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "group": "libnode",
+      "kind": "npm",
+      "name": "@kungfu-tech/libnode-darwin-arm64",
+      "ref": "22.22.3-kf.3-alpha.5",
+      "digest": "sha512-J/6+wwb/QDo/BZ11lum4duI1UQ+Ca4ov2DtPaFT52FGt+Lyt8Jz0IhK8fSsI4RULlNtcsKPCQwd+JaT2OiRdMw==",
+      "evidence": "../release-evidence/v22.22.1-alpha.0/evidence.json"
+    },
+    {
+      "group": "libnode",
+      "kind": "npm",
+      "name": "@kungfu-tech/libnode-linux-x64",
+      "ref": "22.22.3-kf.3-alpha.5",
+      "digest": "sha512-7PWN6tBQTcTtuglS42AjOA286BR5yiZraTOOGiH8oiWWWDOA+VyKEn2osmDpcIMZhl02i9rde9xPZURpFf6+Nw==",
+      "evidence": "../release-evidence/v22.22.1-alpha.0/evidence.json"
+    },
+    {
+      "group": "libnode",
+      "kind": "npm",
+      "name": "@kungfu-tech/libnode-win32-x64",
+      "ref": "22.22.3-kf.3-alpha.5",
+      "digest": "sha512-ELZNZTy1bcmE0NjRs6ClZNylntGNENaQrPmXvctP0IjCv3yjL+bvuvyBPCJXt/W75007QBM6BY3OkwrsQLVdAg==",
+      "evidence": "../release-evidence/v22.22.1-alpha.0/evidence.json"
+    },
+    {
+      "group": "libnode",
+      "kind": "npm",
+      "name": "@kungfu-tech/libnode",
+      "ref": "22.22.3-kf.3-alpha.5",
+      "digest": "sha512-4RgcEcwiyjfoxa8cy1Q04WundwcPyBBWDNk71V8f7KUA4ROGRNoLAmORTbWkmX1457yH0FUzLRxNWbMQ3l79JQ==",
+      "evidence": "../release-evidence/v22.22.1-alpha.0/evidence.json"
+    }
+  ],
+  "evidence": {
+    "artifactEvidence": "artifact-evidence.json",
+    "publishEvidence": "../release-evidence/v22.22.1-alpha.0/evidence.json",
+    "transactionState": "",
+    "buildSummary": "",
+    "platformArtifactManifests": [],
+    "distTagPromotionEvidence": "../release-evidence/v22.22.1-alpha.0/dist-tag-evidence.json",
+    "impact": "impact.json",
+    "checkReport": "check-report.json",
+    "agentIndex": "agent-index.json"
+  },
+  "recovery": {
+    "rollback": "Use the previous exact release tag or previous floating channel ref.",
+    "verify": "buildchain verify release-passport buildchain.release.json"
+  }
+}

@@ -59,7 +59,8 @@ commands = [
 [lifecycle.build]
 timeout_minutes = 240
 commands = [
-  "corepack pnpm build",
+  "corepack pnpm make",
+  "node .gyp/run-with-env.js KF_SKIP_MAKE_LIBNODE=true -- corepack pnpm build",
   "corepack pnpm package",
 ]
 

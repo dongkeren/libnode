@@ -220,8 +220,13 @@ module.exports = cli;
 
 async function main() {
   const argv = await cli.parseAndExit();
+  if (flag('KF_SKIP_MAKE_LIBNODE')) {
+    console.log('libnode make skipped; stamping existing build output');
+    stamp(argv['build-type']);
+    return;
+  }
   build();
   stamp(argv['build-type']);
 }
 
-if (require.main === module && !process.env.KF_SKIP_MAKE_LIBNODE) main().catch(exitOnError);
+if (require.main === module) main().catch(exitOnError);

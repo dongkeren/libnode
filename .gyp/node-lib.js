@@ -25,8 +25,14 @@ exports.run = function (cmd, argv, opts = {}) {
     windowsHide: true,
     ...opts,
   });
-  if (opts.check && result.status !== 0) {
-    process.exit(result.status);
+  if (opts.check && (result.error || result.status === null || result.status !== 0)) {
+    if (result.error) {
+      console.error(result.error.message);
+    }
+    if (result.signal) {
+      console.error(`${cmd} exited with signal ${result.signal}`);
+    }
+    process.exit(result.status === null ? 1 : result.status);
   }
   return result;
 };

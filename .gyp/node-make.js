@@ -165,6 +165,26 @@ const runWinPatch = () => {
   });
 };
 
+function listExistingFiles(dirs) {
+  return dirs.flatMap((dir) => {
+    if (!fs.existsSync(dir)) return [];
+    return fs.readdirSync(dir).map((entry) => path.join(dir, entry));
+  });
+}
+
+function assertNodeBuildOutput(buildType) {
+  const files = listExistingFiles([path.join(nodeSrcDir, buildType), path.join(nodeSrcDir, 'out', buildType)]);
+  const pattern =
+    process.platform === 'win32'
+      ? /^libnode.*\.(dll|lib)$/i
+      : process.platform === 'darwin'
+        ? /^libnode\.\d+\.dylib$/
+        : /^libnode\.so\.\d+$/;
+  if (!files.some((file) => pattern.test(path.basename(file)))) {
+    throw new Error(`Missing ${process.platform}-${arch} libnode binary after make`);
+  }
+}
+
 const buildWin = () => {
   patchEnv();
   cleanNodeBuildState();
@@ -221,11 +241,13 @@ module.exports = cli;
 async function main() {
   const argv = await cli.parseAndExit();
   if (flag('KF_SKIP_MAKE_LIBNODE')) {
+    assertNodeBuildOutput(argv['build-type']);
     console.log('libnode make skipped; stamping existing build output');
     stamp(argv['build-type']);
     return;
   }
   build();
+  assertNodeBuildOutput(argv['build-type']);
   stamp(argv['build-type']);
 }
 

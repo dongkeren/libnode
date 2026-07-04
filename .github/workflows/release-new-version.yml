@@ -21,7 +21,6 @@ jobs:
     uses: kungfu-systems/buildchain/.github/workflows/release-candidate-promote.yml@v2
     secrets: inherit
     with:
-      buildchain-ref: train/v2/v2.5/rc-promote-allow-repository
       package-manager: pnpm
       artifact-name: libnode
       release-candidate-workflow-file: ${{ startsWith(github.ref_name, 'release/') && 'release-verify.yaml' || 'build.yml' }}

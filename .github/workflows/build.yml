@@ -31,6 +31,8 @@ jobs:
       artifact-name-template: '{artifact}-{platform}-{sha}'
       artifact-paths: |
         build/stage
+      release-candidate: ${{ startsWith(github.base_ref, 'alpha/') }}
+      publish-channel: ${{ startsWith(github.base_ref, 'alpha/') && 'alpha' || 'none' }}
       expected-artifacts-json: >-
         {"minFiles":1,"minTotalBytes":10000000}
       artifact-retention-days: 14

@@ -29,6 +29,8 @@ jobs:
       artifact-name-template: '{artifact}-{platform}-{sha}'
       artifact-paths: |
         build/stage
+      release-candidate: true
+      publish-channel: release
       expected-artifacts-json: >-
         {"minFiles":1,"minTotalBytes":10000000}
       artifact-retention-days: 14

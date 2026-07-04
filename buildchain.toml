@@ -74,4 +74,4 @@ commands = [
 
 [lifecycle.publish]
 timeout_minutes = 20
-command = "node .gyp/npm-publish-tarballs.js github-artifacts"
+command = "node .gyp/npm-publish-tarballs.js .buildchain/release-candidate/payloads"

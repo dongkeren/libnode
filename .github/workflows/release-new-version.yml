@@ -3,139 +3,36 @@ name: Release - New Version
 on:
   push:
     branches:
-      - publish-gate/alpha/**
-      - publish-gate/release/**
-      - publish-gate/major
+      - alpha/v*/v*.*
+      - release/v*/v*.*
 
 permissions:
-  contents: read
+  actions: read
+  contents: write
+  id-token: write
+  issues: write
 
 concurrency:
   group: libnode-release-new-version-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  build:
-    uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2
+  promote:
+    uses: kungfu-systems/buildchain/.github/workflows/release-candidate-promote.yml@v2
+    secrets: inherit
     with:
-      runner-preset: kungfu-v4-self-hosted
-      publish-channel: ${{ startsWith(github.ref_name, 'publish-gate/alpha/') && 'alpha' || startsWith(github.ref_name, 'publish-gate/release/') && 'release' || 'major' }}
-      publish-source-ref: ${{ github.ref_name }}
-      setup-node: true
-      node-version: '24'
-      install-command: node .gyp/buildchain-install.js "${{ vars.KF_NODE_GIT_URL }}" "${{ vars.KF_NODE_REFERENCE }}"
-      require-install: true
-      require-build: true
-      require-verify: true
+      package-manager: pnpm
       artifact-name: libnode
-      artifact-name-template: '{artifact}-{platform}-{sha}'
-      artifact-paths: |
-        build/stage
-      expected-artifacts-json: >-
-        {"minFiles":1,"minTotalBytes":10000000}
-      artifact-retention-days: 14
-
-  publish-transaction:
-    name: Publish npm package set through Buildchain
-    needs: [build]
-    if: ${{ needs.build.outputs.publish-allowed == 'true' }}
-    runs-on: ubuntu-24.04
-    permissions:
-      actions: read
-      contents: write
-      id-token: write
-    steps:
-      - name: Checkout promoted source
-        uses: actions/checkout@v7.0.0
-        with:
-          ref: ${{ needs.build.outputs.publish-source-sha }}
-          clean: true
-          persist-credentials: false
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v6.4.0
-        with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v7.0.0
-        with:
-          path: github-artifacts
-
-      - name: Verify resolved release manifest
-        shell: bash
-        run: |
-          node - <<'NODE'
-          const manifest = JSON.parse(process.env.BUILDCHAIN_RELEASE_MANIFEST_JSON);
-          const channel = process.env.BUILDCHAIN_CHANNEL;
-          const sourceSha = process.env.BUILDCHAIN_SOURCE_SHA;
-          if (manifest.schema !== 1) throw new Error('release manifest schema must be 1');
-          if (manifest.sourceSha !== sourceSha) {
-            throw new Error(`manifest sourceSha ${manifest.sourceSha} != ${sourceSha}`);
-          }
-          if (!manifest.sourceLocked) {
-            throw new Error('release publication requires a publish-gate source lock');
-          }
-          if (!['alpha', 'release', 'major'].includes(manifest.channel)) {
-            throw new Error(`unsupported publish-gate channel: ${manifest.channel}`);
-          }
-          if ((manifest.channel === 'alpha' || manifest.channel === 'release') && !manifest.consumerVersion) {
-            throw new Error('publish-gate alpha/release source lock must include a consumer version');
-          }
-          const npmVersion = manifest.anchorManifest?.summary?.npmVersion;
-          if (!npmVersion) throw new Error('manifest anchor npmVersion is required');
-          const versionFile = (manifest.versionFiles || []).find((file) => file.path === 'package.json');
-          if (!versionFile || versionFile.version !== npmVersion) {
-            throw new Error(`package.json version ${versionFile?.version || '<missing>'} != anchor npmVersion ${npmVersion}`);
-          }
-          if (manifest.consumerVersion && manifest.consumerVersion !== npmVersion) {
-            throw new Error(`publish-gate consumer version ${manifest.consumerVersion} != anchor npmVersion ${npmVersion}`);
-          }
-          console.log(`manifest ok: ${channel} ${manifest.sourceRef} ${npmVersion} ${sourceSha}`);
-          NODE
-        env:
-          BUILDCHAIN_RELEASE_MANIFEST_JSON: ${{ needs.build.outputs.release-manifest-json }}
-          BUILDCHAIN_CHANNEL: ${{ needs.build.outputs.publish-channel }}
-          BUILDCHAIN_SOURCE_SHA: ${{ needs.build.outputs.publish-source-sha }}
-
-      - name: Prepare Buildchain publish evidence requirements
-        id: evidence
-        shell: bash
-        run: |
-          node .gyp/npm-publish-tarballs.js \
-            --write-buildchain-required-artifacts .buildchain/required-artifacts.json \
-            github-artifacts
-          {
-            echo 'required-artifacts-json<<JSON'
-            cat .buildchain/required-artifacts.json
-            echo 'JSON'
-          } >> "${GITHUB_OUTPUT}"
-        env:
-          KF_NPM_EXPECTED_VERSION: ${{ fromJSON(needs.build.outputs.release-manifest-json).anchorManifest.summary.npmVersion }}
-
-      - name: Promote release ref and publish npm package set
-        uses: kungfu-systems/buildchain/actions/promote-buildchain-ref@v2
-        env:
-          KF_NPM_DIST_TAG: ${{ needs.build.outputs.publish-channel == 'alpha' && 'alpha' || 'latest' }}
-          KF_NPM_EXPECTED_VERSION: ${{ fromJSON(needs.build.outputs.release-manifest-json).anchorManifest.summary.npmVersion }}
-        with:
-          token: ${{ secrets.BUILDCHAIN_PROMOTION_TOKEN || github.token }}
-          sha: ${{ needs.build.outputs.publish-source-sha }}
-          target-ref: ${{ needs.build.outputs.publish-source-channel == 'major' && 'publish-gate/major' || format('{0}/{1}', needs.build.outputs.publish-source-channel, needs.build.outputs.publish-source-line) }}
-          allow-repository: ${{ github.repository }}
-          require-governance: 'true'
-          require-version-state: 'true'
-          required-status-check: 'build'
-          publish-transaction: 'true'
-          release-passport-product-name: Libnode
-          publish-mode: publish-final-version
-          publish-auth: trusted-publishing
-          publish-dist-tag: ${{ needs.build.outputs.publish-channel == 'alpha' && 'alpha' || 'latest' }}
-          publish-package-set-order: platforms-first-main-last
-          publish-package-main: '@kungfu-tech/libnode'
-          require-publish-source-lock: 'true'
-          publish-source-ref: ${{ needs.build.outputs.publish-source-ref }}
-          publish-source-sha: ${{ needs.build.outputs.publish-source-sha }}
-          publish-source-locked: ${{ needs.build.outputs.publish-source-locked }}
-          publish-required-artifacts-json: ${{ steps.evidence.outputs.required-artifacts-json }}
+      release-candidate-workflow-file: ${{ startsWith(github.ref_name, 'release/') && 'release-verify.yaml' || 'build.yml' }}
+      release-candidate-workflow-name: ${{ startsWith(github.ref_name, 'release/') && 'Release - Verify' || 'Build' }}
+      artifact-patterns: |
+        libnode-darwin-arm64-*
+        libnode-linux-x64-*
+        libnode-win32-x64-*
+      required-status-check: build
+      required-artifact-count: 4
+      publish-mode: publish-final-version
+      publish-dist-tag: ${{ startsWith(github.ref_name, 'alpha/') && 'alpha' || 'latest' }}
+      publish-package-set-order: platforms-first-main-last
+      publish-package-main: '@kungfu-tech/libnode'
+      release-passport-product-name: Libnode

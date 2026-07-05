@@ -35,6 +35,8 @@ jobs:
         ${{ github.event_name == 'pull_request' && startsWith(github.base_ref, 'alpha/') && github.head_ref == 'feature/macos-alpha-diagnostic' && '[{"id":"macos-arm64","name":"macOS ARM64","runner":"[\"self-hosted\",\"macOS\",\"ARM64\",\"kungfu-build-v4-macos-arm64\"]"}]' || '' }}
       release-candidate: ${{ startsWith(github.base_ref, 'alpha/') && github.head_ref != 'feature/macos-alpha-diagnostic' }}
       publish-channel: ${{ startsWith(github.base_ref, 'alpha/') && github.head_ref != 'feature/macos-alpha-diagnostic' && 'alpha' || 'none' }}
+      build-command: >-
+        ${{ github.event_name == 'pull_request' && startsWith(github.base_ref, 'alpha/') && github.head_ref == 'feature/macos-alpha-diagnostic' && 'bash .github/scripts/diagnostic-quiet-build.sh' || '' }}
       expected-artifacts-json: >-
         {"minFiles":1,"minTotalBytes":10000000}
       artifact-retention-days: 14

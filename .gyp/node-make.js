@@ -38,6 +38,12 @@ function runCacheTool(tool, args) {
   run(tool, args, { check: false });
 }
 
+function showDirectorySize(label, dir) {
+  if (!dir || !fs.existsSync(dir) || process.platform === 'win32' || !commandExists('du')) return;
+  console.log(`compiler cache ${label} size:`);
+  runCacheTool('du', ['-sh', dir]);
+}
+
 function prepareUnixCompilerCache(mode) {
   if (mode === 'sccache') {
     const sccache = commandExists('sccache');
@@ -100,6 +106,16 @@ function showCompilerCacheStats() {
   if (process.env.SCCACHE_DIR && commandExists('sccache')) {
     runCacheTool('sccache', ['--show-stats']);
   }
+}
+
+function showCompilerCacheDiagnostics(stage) {
+  console.log(`compiler cache diagnostics (${stage}):`);
+  for (const name of ['KF_COMPILER_CACHE', 'KF_COMPILER_CACHE_ROOT', 'CCACHE_DIR', 'SCCACHE_DIR', 'CC', 'CXX']) {
+    console.log(`${name}=${process.env[name] || ''}`);
+  }
+  showDirectorySize('ccache dir', process.env.CCACHE_DIR);
+  showDirectorySize('sccache dir', process.env.SCCACHE_DIR);
+  showCompilerCacheStats();
 }
 
 function cleanNodeBuildState() {
@@ -190,18 +206,20 @@ const buildWin = () => {
   cleanNodeBuildState();
   prepareWindowsPythonEnv();
   const cacheArgs = prepareCompilerCache();
+  showCompilerCacheDiagnostics('before build');
   run(path.join('.', 'vcbuild.bat'), ['dll', arch, 'release', 'projgen', 'nobuild', ...cacheArgs], { cwd: nodeSrcDir });
   runWinPatch();
   run(path.join('.', 'vcbuild.bat'), ['dll', 'noprojgen', ...cacheArgs], { cwd: nodeSrcDir });
-  showCompilerCacheStats();
+  showCompilerCacheDiagnostics('after build');
 };
 
 const buildUnix = () => {
   cleanNodeBuildState();
   prepareCompilerCache();
+  showCompilerCacheDiagnostics('before build');
   run('sh', [path.join('.', 'configure'), '--shared'], { cwd: nodeSrcDir });
   run('make', ['-j', `${buildJobs()}`], { cwd: nodeSrcDir });
-  showCompilerCacheStats();
+  showCompilerCacheDiagnostics('after build');
 };
 
 const build = process.platform === 'win32' ? buildWin : buildUnix;

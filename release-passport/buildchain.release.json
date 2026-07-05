@@ -26,7 +26,7 @@
     "treeEquivalent": true,
     "publishToolingSha": "d3e1c3cca3da8a9e1bb0579374fbd2c61041cd85",
     "releaseStateRef": "refs/heads/buildchain/release-state/22-22-3-kf-3-alpha-9",
-    "releaseStateSha": "",
+    "releaseStateSha": "91c9e24d7c32f8e0ef2716d9817a04834f48ca02",
     "package": {
       "name": "@kungfu-tech/libnode",
       "version": "22.22.3-kf.3-alpha.9"

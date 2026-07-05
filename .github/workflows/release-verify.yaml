@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: libnode-release-verify-${{ github.event.pull_request.number || github.ref }}
@@ -19,6 +20,7 @@ jobs:
     uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2
     with:
       runner-preset: kungfu-v4-self-hosted
+      artifact-transfer-mode: s3-to-github-artifacts
       setup-node: true
       node-version: '24'
       install-command: node .gyp/buildchain-install.js "${{ vars.KF_NODE_GIT_URL }}" "${{ vars.KF_NODE_REFERENCE }}"

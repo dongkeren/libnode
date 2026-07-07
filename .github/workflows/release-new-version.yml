@@ -22,6 +22,8 @@ jobs:
     secrets: inherit
     with:
       package-manager: pnpm
+      buildchain-contract-lock-path: buildchain.contract-lock.json
+      buildchain-contract-drift-issue-mode: compatible-and-breaking
       artifact-name: libnode
       release-candidate-workflow-file: ${{ startsWith(github.ref_name, 'release/') && 'release-verify.yaml' || 'build.yml' }}
       release-candidate-workflow-name: ${{ startsWith(github.ref_name, 'release/') && 'Release - Verify' || 'Build' }}

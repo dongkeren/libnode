@@ -114,6 +114,14 @@ __pypackages__/
 
 # Build related
 .buildchain/
+!.buildchain/
+.buildchain/*
+!.buildchain/kfd-1/
+!.buildchain/kfd-1/**
+!.buildchain/kfd-2/
+!.buildchain/kfd-2/**
+!.buildchain/kfd-3/
+!.buildchain/kfd-3/**
 github-artifacts/
 build/
 build-*/

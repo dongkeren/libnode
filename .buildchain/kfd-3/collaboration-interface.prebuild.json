@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "contract": "kungfu-buildchain-kfd-3-collaboration-interface-prebuild-witness",
+  "id": "libnode-release-interface",
+  "standard": "kfd-3",
+  "supportLevel": "release",
+  "source": {
+    "repo": "kungfu-systems/libnode",
+    "ref": "dev/v22/v22.22"
+  },
+  "sourceRegistry": {
+    "id": "libnode-release-contract",
+    "path": "libnode.release.json",
+    "version": "22.22.3-kf.3-alpha.13"
+  },
+  "collaborationInterfaceDigest": "sha256:da72832c4fee28021f90381b86ed94ccf6d8bddcb23b80419d256e5a9e4bb653",
+  "collaborationInterface": {
+    "schemaVersion": 1,
+    "contract": "kfd-3-collaboration-interface",
+    "digest": "sha256:da72832c4fee28021f90381b86ed94ccf6d8bddcb23b80419d256e5a9e4bb653",
+    "product": {
+      "name": "Libnode",
+      "package": "@kungfu-tech/libnode",
+      "repository": "https://github.com/kungfu-systems/libnode"
+    },
+    "participants": [
+      {
+        "id": "package-consumer",
+        "kind": "human-or-agent"
+      },
+      {
+        "id": "native-build-consumer",
+        "kind": "human-or-agent"
+      },
+      {
+        "id": "release-maintainer",
+        "kind": "maintainer"
+      },
+      {
+        "id": "buildchain-release-system",
+        "kind": "automation"
+      }
+    ],
+    "surfaces": [
+      {
+        "id": "npm:main-package",
+        "name": "@kungfu-tech/libnode main package",
+        "kind": "package-entrypoint",
+        "availability": "shipped",
+        "visibility": "public",
+        "participantFacing": true,
+        "public": true,
+        "sourcePath": "package.json"
+      },
+      {
+        "id": "npm:platform-darwin-arm64",
+        "name": "@kungfu-tech/libnode-darwin-arm64 package",
+        "kind": "platform-package",
+        "availability": "shipped",
+        "visibility": "public",
+        "participantFacing": true,
+        "public": true,
+        "sourcePath": ".gyp/node-platform-package.js"
+      },
+      {
+        "id": "npm:platform-linux-x64",
+        "name": "@kungfu-tech/libnode-linux-x64 package",
+        "kind": "platform-package",
+        "availability": "shipped",
+        "visibility": "public",
+        "participantFacing": true,
+        "public": true,
+        "sourcePath": ".gyp/node-platform-package.js"
+      },
+      {
+        "id": "npm:platform-win32-x64",
+        "name": "@kungfu-tech/libnode-win32-x64 package",
+        "kind": "platform-package",
+        "availability": "shipped",
+        "visibility": "public",
+        "participantFacing": true,
+        "public": true,
+        "sourcePath": ".gyp/node-platform-package.js"
+      },
+      {
+        "id": "layout:headers",
+        "name": "Node and Node-API headers in platform packages",
+        "kind": "native-header-layout",
+        "availability": "shipped",
+        "visibility": "public",
+        "participantFacing": true,
+        "public": true,
+        "sourcePath": ".gyp/node-platform-package.js"
+      },
+      {
+        "id": "layout:darwin-libnode-alias-policy",
+        "name": "macOS libnode.dylib alias materialization policy",
+        "kind": "native-link-layout",
+        "availability": "shipped",
+        "visibility": "public",
+        "participantFacing": true,
+        "public": true,
+        "sourcePath": ".gyp/node-platform-package.js"
+      },
+      {
+        "id": "layout:linux-libnode-alias-policy",
+        "name": "Linux libnode.so alias materialization policy",
+        "kind": "native-link-layout",
+        "availability": "shipped",
+        "visibility": "public",
+        "participantFacing": true,
+        "public": true,
+        "sourcePath": ".gyp/node-platform-package.js"
+      },
+      {
+        "id": "layout:windows-import-library",
+        "name": "Windows libnode import library",
+        "kind": "native-link-layout",
+        "availability": "shipped",
+        "visibility": "public",
+        "participantFacing": true,
+        "public": true,
+        "sourcePath": ".gyp/node-platform-package.js"
+      },
+      {
+        "id": "release:node-version-anchor",
+        "name": "Node upstream version and commit anchor",
+        "kind": "release-fact",
+        "availability": "shipped",
+        "visibility": "public",
+        "participantFacing": true,
+        "public": true,
+        "sourcePath": "libnode.release.json"
+      },
+      {
+        "id": "release:trusted-publishing",
+        "name": "npm trusted publishing release path",
+        "kind": "release-control",
+        "availability": "shipped",
+        "visibility": "public",
+        "participantFacing": true,
+        "public": true,
+        "sourcePath": ".github/workflows/release-new-version.yml"
+      }
+    ],
+    "closure": {
+      "classificationMode": "closed-world",
+      "unclassifiedEntrypointsPolicy": "fail",
+      "nonExhaustivelyEnumerableSurfaces": []
+    }
+  },
+  "expectedArtifactVerification": {
+    "command": "node .gyp/libnode-kfd3-artifact-verify.js .buildchain/release-candidate/payloads"
+  },
+  "auditBoundary": {
+    "mode": "closed-world",
+    "scope": "participant-facing public libnode npm release surfaces",
+    "reachableSurfaceMode": "declared-boundary",
+    "unclassifiedPolicy": "fail",
+    "nonExhaustivelyEnumerableSurfaces": []
+  },
+  "residualRisk": [],
+  "responsibility": {
+    "registryFactsOwner": "Libnode maintainers",
+    "artifactVerificationOwner": "libnode package verifier",
+    "releasePassportProofOwner": "Buildchain"
+  }
+}

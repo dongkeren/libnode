@@ -38,3 +38,4 @@ jobs:
       publish-package-set-order: platforms-first-main-last
       publish-package-main: '@kungfu-tech/libnode'
       release-passport-product-name: Libnode
+      github-release: true

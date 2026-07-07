@@ -1,0 +1,112 @@
+{
+  "id": "claim:libnode-public-release-trust",
+  "public": true,
+  "claim": "Libnode npm releases are anchored to libnode.release.json, built as a three-platform package set, verified by product-owned package gates, and published through Buildchain trusted publishing.",
+  "sourceBindings": [
+    {
+      "id": "release-manifest",
+      "path": "libnode.release.json"
+    },
+    {
+      "id": "package-manifest",
+      "path": "package.json"
+    },
+    {
+      "id": "buildchain-config",
+      "path": "buildchain.toml"
+    },
+    {
+      "id": "package-builder",
+      "path": ".gyp/node-platform-package.js"
+    },
+    {
+      "id": "release-workflow",
+      "path": ".github/workflows/release-new-version.yml"
+    }
+  ],
+  "machineEvidence": [
+    {
+      "id": "release-manifest-verifier",
+      "path": ".gyp/libnode-release-verify.js"
+    },
+    {
+      "id": "package-source-verifier",
+      "path": ".gyp/node-platform-package.js",
+      "command": "corepack pnpm verify-package-source"
+    },
+    {
+      "id": "kfd3-artifact-verifier",
+      "path": ".gyp/libnode-kfd3-artifact-verify.js",
+      "command": "node .gyp/libnode-kfd3-artifact-verify.js .buildchain/release-candidate/payloads"
+    }
+  ],
+  "hashes": {
+    "releaseContract": "libnode.release.json + package.json + buildchain.toml",
+    "releasePassport": "computed by Buildchain at promotion time",
+    "packageSet": "computed from npm tarball digests by the KFD-3 artifact verifier"
+  },
+  "artifacts": [
+    {
+      "name": "@kungfu-tech/libnode",
+      "kind": "npm-main-package"
+    },
+    {
+      "name": "@kungfu-tech/libnode-darwin-arm64",
+      "kind": "npm-platform-package"
+    },
+    {
+      "name": "@kungfu-tech/libnode-linux-x64",
+      "kind": "npm-platform-package"
+    },
+    {
+      "name": "@kungfu-tech/libnode-win32-x64",
+      "kind": "npm-platform-package"
+    }
+  ],
+  "verification": {
+    "result": "passed",
+    "gates": [
+      "corepack pnpm verify-release",
+      "corepack pnpm verify-package-source",
+      "Buildchain KFD-1 contract-world gate",
+      "Buildchain KFD-3 collaboration-interface reverse audit",
+      "npm trusted publishing transaction"
+    ]
+  },
+  "auditBoundary": {
+    "scope": "Libnode source manifest, package metadata, Buildchain release transaction, npm package set, and declared platform package surfaces.",
+    "outOfScope": [
+      "Upstream Node project governance",
+      "Bit-for-bit compiler reproducibility across host toolchains",
+      "Consumer operating-system dynamic loader behavior outside the packaged layout"
+    ]
+  },
+  "responsibility": {
+    "owner": "Libnode maintainers",
+    "sourceContractOwner": "Libnode maintainers",
+    "artifactVerificationOwner": "libnode package verifier",
+    "releasePassportProofOwner": "Buildchain"
+  },
+  "residualRisk": [
+    {
+      "id": "upstream-node-source-trust",
+      "definedBy": "https://kfd.libkungfu.dev/schemas/kfd-2/trust-taxonomy.schema.json#/$defs/residualRisk",
+      "riskType": "external-fact-risk",
+      "trustImpact": "downgrade-warning",
+      "machineProvability": "partially-machine-verifiable",
+      "agentAction": "verify-external-facts",
+      "reason": "The release gate verifies the declared Node tag and commit anchor, but upstream Node project trust is external to libnode.",
+      "owner": "Libnode maintainers"
+    },
+    {
+      "id": "native-toolchain-reproducibility",
+      "definedBy": "https://kfd.libkungfu.dev/schemas/kfd-2/trust-taxonomy.schema.json#/$defs/residualRisk",
+      "riskType": "partial-machine-coverage-risk",
+      "trustImpact": "downgrade-warning",
+      "machineProvability": "not-exhaustively-enumerable",
+      "agentAction": "accept-with-warning",
+      "reason": "The release gate verifies packaged bytes and layout, but does not claim bit-for-bit reproducibility across all compiler and SDK versions.",
+      "owner": "Libnode maintainers"
+    }
+  ]
+}

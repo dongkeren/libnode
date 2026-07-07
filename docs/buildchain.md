@@ -40,6 +40,12 @@ GitHub matrix workflow for Linux, macOS arm64, and Windows verification.
 The workflow invokes pnpm through Corepack so the runner does not rely on a
 preinstalled global package manager binary.
 
+The dist step strips local/debug symbols from macOS and Linux release shared
+libraries before platform npm packages are staged. This keeps published
+packages release-oriented while allowing diagnostics runs to opt out with
+`KF_DISABLE_STRIP_LIBNODE=true` or to strip only debug sections with
+`KF_STRIP_LIBNODE_MODE=debug`.
+
 ## No-build Preflight
 
 The migration can be validated before running the expensive native build. The
@@ -76,30 +82,38 @@ lifecycleStages: install, build, verify, publish
 
 ## Release - New Version Workflow
 
-Release verification still builds platform artifacts in this repository because
-libnode has platform-specific native outputs. Those artifacts are npm tarballs:
-one package per supported platform, plus the main package tarball from the
-Linux x64 release build.
+PR-stage Build verification still builds platform artifacts in this repository
+because libnode has platform-specific native outputs. Those artifacts are npm
+tarballs: one package per supported platform, plus the main package tarball from
+the Linux x64 release build.
 
 The release chain does not publish native binaries to AWS/S3. GitHub Actions
 artifacts are only the handoff between the Buildchain build job and the npm
 publish job, and npm is the release distribution surface.
 
 Actual npm publication is driven by reviewed Buildchain channel promotion, not
-by ad hoc publish branches. A merge into `alpha/vN/vN.M` publishes the package
-set with npm dist-tag `alpha`. A merge into `release/vN/vN.M` publishes the
-final package set with npm dist-tag `latest`.
+by ad hoc publish branches. A pull request into `alpha/vN/vN.M` or
+`release/vN/vN.M` builds the native matrix once and uploads a
+release-candidate passport. After that PR is merged, the release workflow uses
+Buildchain `release-candidate-promote.yml@v2` to validate the PR-stage passport,
+lock the corresponding `publish-gate/*` source ref, and publish without a second
+native rebuild. A merge into `alpha/vN/vN.M` publishes the package set with npm
+dist-tag `alpha`. A merge into `release/vN/vN.M` publishes the final package set
+with npm dist-tag `latest`.
 
 ```text
 alpha/v22/v22.22
 release/v22/v22.22
 ```
 
-The `Release - New Version` workflow first runs Buildchain `.build.yml@v2`
-against the channel branch tip. The publish job then calls
-`promote-buildchain-ref@v2` with `publish-transaction: true`, so npm publication
-and Buildchain ref/tag promotion are one transaction with durable
-`buildchain/release-state/<version>` state and `BUILDCHAIN_PUBLISH_EVIDENCE`.
+The `Release - New Version` workflow calls Buildchain
+`release-candidate-promote.yml@v2` against the merged channel branch tip. The
+wrapper resolves the matching same-repository PR-stage `Build` run, downloads
+its release-candidate passport and npm tarballs, verifies source/tree
+equivalence, locks `publish-gate/*`, and then calls `promote-buildchain-ref@v2`
+with `publish-transaction: true`. Npm publication and Buildchain ref/tag
+promotion are one transaction with durable `buildchain/release-state/<version>`
+state and `BUILDCHAIN_PUBLISH_EVIDENCE`.
 
 Before touching npm, the publish job verifies that `package.json#version` and
 `libnode.release.json` agree on the exact npm version. The branch name only

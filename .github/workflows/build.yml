@@ -2,11 +2,6 @@ name: Build
 
 on:
   workflow_dispatch:
-    inputs:
-      buildchain-ref:
-        description: 'Temporary Buildchain runtime ref for trusted manual validation'
-        required: false
-        default: ''
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
@@ -27,7 +22,6 @@ jobs:
   build:
     uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2
     with:
-      buildchain-ref: ${{ inputs.buildchain-ref || '' }}
       runner-preset: kungfu-v4-self-hosted
       artifact-transfer-mode: s3-to-github-artifacts
       setup-node: true

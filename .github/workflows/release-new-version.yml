@@ -23,8 +23,8 @@ jobs:
     with:
       package-manager: pnpm
       artifact-name: libnode
-      release-candidate-workflow-file: build.yml
-      release-candidate-workflow-name: Build
+      release-candidate-workflow-file: ${{ startsWith(github.ref_name, 'release/') && 'release-verify.yaml' || 'build.yml' }}
+      release-candidate-workflow-name: ${{ startsWith(github.ref_name, 'release/') && 'Release - Verify' || 'Build' }}
       artifact-patterns: |
         libnode-macos-arm64-*
         libnode-linux-x64-*

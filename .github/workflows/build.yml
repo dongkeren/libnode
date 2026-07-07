@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-matrix:
     uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2
     with:
       runner-preset: kungfu-v4-self-hosted
@@ -41,3 +41,16 @@ jobs:
       expected-artifacts-json: >-
         {"minFiles":1,"minTotalBytes":10000000}
       artifact-retention-days: 14
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    needs: build-matrix
+    if: always()
+    steps:
+      - name: Require build matrix success
+        run: |
+          if [ "${{ needs.build-matrix.result }}" != "success" ]; then
+            echo "::error::build matrix result was ${{ needs.build-matrix.result }}"
+            exit 1
+          fi

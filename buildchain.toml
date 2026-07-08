@@ -69,6 +69,7 @@ commands = [
 timeout_minutes = 10
 commands = [
   "corepack pnpm verify-release",
+  "corepack pnpm verify-kfd-witnesses",
   "corepack pnpm verify-package-source",
   "git diff --check",
 ]

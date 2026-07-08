@@ -27,6 +27,7 @@ main_package = "@kungfu-tech/libnode"
 [lifecycle.env]
 KF_SKIP_FALLBACK_BUILD = "true"
 KF_COMPILER_CACHE = "auto"
+KF_WINDOWS_PYTHON_EXE = "C:/Users/dkr/AppData/Local/Programs/Python/Python314/python.exe"
 
 [diagnostics.native]
 enabled = true

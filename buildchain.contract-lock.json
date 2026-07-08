@@ -3,13 +3,13 @@
   "contract": "kungfu-buildchain-contract-lock",
   "buildchain": {
     "ref": "v2",
-    "resolvedSha": "c92cf5d31c544dcde3dc7a11151a90e8a5f91d25",
+    "resolvedSha": "6990341aaf93b51b936e5e66f380488d593daf6e",
     "contract": "kungfu-buildchain-runtime-contract-world",
-    "contractDigest": "sha256:f289f70ad8c2b95a05f8309378da51ec5641c1ea7a145670137d096285b70dcd",
-    "compatibilityDigest": "sha256:36421b592a782decbfe31a7d8d42d70ce1100a56a2c4f4a0ccc21f0617dc72bf",
+    "contractDigest": "sha256:3a82cbfd0cf15f85dac51b6ab03e3c3ce20ca2f3355d5319d969c43758ebb900",
+    "compatibilityDigest": "sha256:407d6d5ee6a96a34d2cc30db9ac64cf4b1819ab6d77bd7a57a07a124f22101ca",
     "majorLine": "v2",
     "compatibilityPolicy": "major-compatible",
-    "acceptedAt": "2026-07-07T00:00:00.000Z",
+    "acceptedAt": "2026-07-08T00:00:00.000Z",
     "surfaces": [
       {
         "id": "reusable-build",
@@ -20,6 +20,11 @@
         "id": "release-candidate-promote",
         "kind": "workflow",
         "breakingDigest": "sha256:403d2fcdb0c5eabe749e89102defad69745f70a1556707bec7831fcc2e9fa8f8"
+      },
+      {
+        "id": "web-surface",
+        "kind": "workflow",
+        "breakingDigest": "sha256:82ee63cb336e40d832dfff4a1c5e6cbfa221a4fc8b2359990033bc931bffc43a"
       },
       {
         "id": "promote-buildchain-ref-action",
@@ -54,7 +59,17 @@
       {
         "id": "buildchain-cli",
         "kind": "cli",
-        "breakingDigest": "sha256:097db3e67509bedda8c6548bf1edfbfcf57f7b5510520b6a7b7e078d7ec087c8"
+        "breakingDigest": "sha256:90a73892b2d6c214048448d5f45df75639bdf7b7e8fefd9c596e04b087407bcc"
+      },
+      {
+        "id": "homebrew-distribution-index",
+        "kind": "node-api",
+        "breakingDigest": "sha256:148c0387ff4cea76433bbde80cd9d77c5aa67e1a29856ced33e4d819366f2213"
+      },
+      {
+        "id": "readme-badge-facts",
+        "kind": "node-api",
+        "breakingDigest": "sha256:bcd72ad6dfba8013c96f8b2f7b0a307d2e7713972a1219348f0d5ecc493939a0"
       },
       {
         "id": "agent-manual-registry",

@@ -16,8 +16,8 @@
   "state_ref": "buildchain/release-state/22-22-3-kf-3-alpha-17",
   "state_path": "/home/runner/work/libnode/libnode/.buildchain/release-state/v22.22.1-alpha.10.json",
   "evidence_path": "/home/runner/work/libnode/libnode/.buildchain/release-evidence/v22.22.1-alpha.10/evidence.json",
-  "state": "finalizing",
-  "previous_state": "published",
+  "state": "complete",
+  "previous_state": "finalizing",
   "actor": "kungfu-origin",
   "run_id": "28982302372",
   "superseded_by": "",
@@ -65,5 +65,5 @@
     ".buildchain/release-evidence/v22.22.1-alpha.10/dist-tag-evidence.json"
   ],
   "created_at": "2026-07-08T23:16:28.156Z",
-  "updated_at": "2026-07-08T23:17:14.814Z"
+  "updated_at": "2026-07-08T23:17:21.288Z"
 }

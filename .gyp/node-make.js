@@ -199,7 +199,12 @@ const buildWin = () => {
 const buildUnix = () => {
   cleanNodeBuildState();
   prepareCompilerCache();
-  run('sh', [path.join('.', 'configure'), '--shared'], { cwd: nodeSrcDir });
+  const configureScript = path.join('.', 'configure');
+  if (process.platform === 'linux' && fs.existsSync('/usr/bin/python3')) {
+    run('/usr/bin/python3', [configureScript, '--shared'], { cwd: nodeSrcDir });
+  } else {
+    run('sh', [configureScript, '--shared'], { cwd: nodeSrcDir });
+  }
   run('make', ['-j', `${buildJobs()}`], { cwd: nodeSrcDir });
   showCompilerCacheStats();
 };

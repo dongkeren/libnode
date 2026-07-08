@@ -47,7 +47,17 @@ job. The workflow does not use `NPM_PUSH_TOKEN` or npm dist-tag recovery tokens
 for the normal path; package access is authorized by the trusted publisher
 records on npm for this repository and workflow file.
 
-For self-hosted runners, set `KF_NODE_GIT_URL` to a local network Git service when available. `KF_NODE_REFERENCE` can also point at a runner-local bare mirror to reduce repeated object transfer. If those variables are not set, the prepare step falls back to the public Node.js GitHub repository.
+For self-hosted runners, set `BUILDCHAIN_CHECKOUT_CACHE_MIRROR_URL_TEMPLATE`
+to the Buildchain locked source checkout mirror template, such as
+`http://192.168.100.222:8088/git-mirrors/{repo}.git`, so the release source
+checkout can be resolved from the local network before falling back to GitHub.
+Set `KF_NODE_GIT_URL` to a local Node.js Git mirror when available.
+Use a smart Git endpoint such as `git://192.168.100.222/node.git` for this
+value; the static HTTP mirror is only suitable for Buildchain source checkout
+and does not support shallow tag fetches. `KF_NODE_REFERENCE` can also point at
+a runner-local bare mirror to reduce repeated object transfer. If those
+variables are not set, the prepare step falls back to the public Node.js GitHub
+repository.
 
 Compiler caching is enabled opportunistically with `KF_COMPILER_CACHE=auto` in `buildchain.toml`. Linux and macOS use `ccache` when it is installed on the runner. Windows uses Node.js `vcbuild.bat ccache <path>` mode when `ccache.exe` is available; set `KF_NODE_WIN_CCACHE_PATH` when the verified `ccache.exe`/`cl.exe` wrapper directory is not on `PATH`. Set `KF_DISABLE_COMPILER_CACHE=true` to force a clean uncached build. Unix builds default to `make -j <cpu count>`; set `KF_BUILD_JOBS=<n>` when a runner needs a lower or higher explicit job count.
 

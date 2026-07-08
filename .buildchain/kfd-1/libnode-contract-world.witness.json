@@ -10,12 +10,12 @@
   "contractWorld": {
     "id": "libnode-release-contract",
     "schemaId": "https://kfd.libkungfu.dev/schemas/kfd-1/contract-world.schema.json",
-    "digest": "sha256:89209c832af5dffee0d73e33b0d2b4c68cd0b2693141ef6472e31e673ce5790c"
+    "digest": "sha256:90555ff4f2b127ecfe552feec55782175e3c227bbb46c400603eee13ff7e6920"
   },
   "standardContract": {
     "id": "libnode-release-contract",
     "path": "libnode.release.json",
-    "sha256": "89209c832af5dffee0d73e33b0d2b4c68cd0b2693141ef6472e31e673ce5790c"
+    "sha256": "90555ff4f2b127ecfe552feec55782175e3c227bbb46c400603eee13ff7e6920"
   },
   "selfHostingBoundary": {
     "mode": "self-hosted-standard-contract",
@@ -33,17 +33,17 @@
     {
       "name": "package-manifest",
       "sourcePath": "package.json",
-      "sourceSha256": "a20cf95aed25d87a6cf960e74a2ec23d0411ffdd958c9321ece0ec8249f82979",
+      "sourceSha256": "d4ebd9d10839ad724f84df7f2772c1d090d9f021a8d69e3b533256e725f7301b",
       "artifactPath": "package.json",
-      "expectedSha256": "a20cf95aed25d87a6cf960e74a2ec23d0411ffdd958c9321ece0ec8249f82979",
+      "expectedSha256": "d4ebd9d10839ad724f84df7f2772c1d090d9f021a8d69e3b533256e725f7301b",
       "byteForByte": true
     },
     {
       "name": "release-manifest",
       "sourcePath": "libnode.release.json",
-      "sourceSha256": "89209c832af5dffee0d73e33b0d2b4c68cd0b2693141ef6472e31e673ce5790c",
+      "sourceSha256": "90555ff4f2b127ecfe552feec55782175e3c227bbb46c400603eee13ff7e6920",
       "artifactPath": "libnode.release.json",
-      "expectedSha256": "89209c832af5dffee0d73e33b0d2b4c68cd0b2693141ef6472e31e673ce5790c",
+      "expectedSha256": "90555ff4f2b127ecfe552feec55782175e3c227bbb46c400603eee13ff7e6920",
       "byteForByte": true
     },
     {
@@ -97,9 +97,9 @@
     {
       "name": "kfd3-prebuild-witness",
       "sourcePath": ".buildchain/kfd-3/collaboration-interface.prebuild.json",
-      "sourceSha256": "a190401a0e1536b9d0f01e4168d30f7c8dae1a3bf6fed03c743a64e659d62262",
+      "sourceSha256": "b53358e77cac8769faf23cc9f33932eee4db2dafc7c780acde9e698ed99f64de",
       "artifactPath": ".buildchain/kfd-3/collaboration-interface.prebuild.json",
-      "expectedSha256": "a190401a0e1536b9d0f01e4168d30f7c8dae1a3bf6fed03c743a64e659d62262",
+      "expectedSha256": "b53358e77cac8769faf23cc9f33932eee4db2dafc7c780acde9e698ed99f64de",
       "byteForByte": true
     }
   ]

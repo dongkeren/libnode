@@ -26,6 +26,10 @@ jobs:
       buildchain-contract-lock-path: buildchain.contract-lock.json
       buildchain-contract-drift-issue-mode: compatible-and-breaking
       artifact-transfer-mode: s3-to-github-artifacts
+      checkout-cache-mode: auto
+      checkout-cache-mirror-url-template: ${{ vars.BUILDCHAIN_CHECKOUT_CACHE_MIRROR_URL_TEMPLATE }}
+      checkout-cache-fallback: github
+      checkout-cache-timeout-seconds: 60
       setup-node: true
       node-version: '24'
       install-command: node .gyp/buildchain-install.js "${{ vars.KF_NODE_GIT_URL }}" "${{ vars.KF_NODE_REFERENCE }}"

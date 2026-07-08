@@ -87,8 +87,12 @@ function downloadWindowsPython(url, archivePath, env = process.env) {
   );
 }
 
-function usePython(env, pythonExe) {
-  env.PYTHON = env.PYTHON || pythonExe;
+function usePython(env, pythonExe, options = {}) {
+  if (options.force) {
+    env.PYTHON = pythonExe;
+  } else {
+    env.PYTHON = env.PYTHON || pythonExe;
+  }
   prependPath(env, path.dirname(pythonExe));
   return pythonExe;
 }
@@ -123,6 +127,10 @@ function ensureWindowsPythonFromCache(env = process.env) {
 
 function prepareWindowsPythonEnv(env = process.env) {
   if (process.platform !== 'win32') return '';
+  const configuredPython = env.KF_WINDOWS_PYTHON_EXE || env.KF_WINDOWS_SYSTEM_PYTHON || '';
+  if (configuredPython && fs.existsSync(configuredPython)) {
+    return usePython(env, configuredPython, { force: true });
+  }
   const existingPython = env.PYTHON || commandExists('python.exe', env);
   if (existingPython) return usePython(env, existingPython);
 

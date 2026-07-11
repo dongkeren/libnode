@@ -81,9 +81,9 @@
     {
       "name": "release-workflow",
       "sourcePath": ".github/workflows/release-new-version.yml",
-      "sourceSha256": "14aad9f50a6f7bc96a5c14927e97fc00ed7cca31e8eab11a2542e39ac716fa89",
+      "sourceSha256": "e60427b32d5ffde8813ff41e8fe0781a2fac2f9338709abd450de4e8372c902e",
       "artifactPath": ".github/workflows/release-new-version.yml",
-      "expectedSha256": "14aad9f50a6f7bc96a5c14927e97fc00ed7cca31e8eab11a2542e39ac716fa89",
+      "expectedSha256": "e60427b32d5ffde8813ff41e8fe0781a2fac2f9338709abd450de4e8372c902e",
       "byteForByte": true
     },
     {

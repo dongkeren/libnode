@@ -20,10 +20,11 @@ concurrency:
 
 jobs:
   build-matrix:
-    uses: kungfu-systems/buildchain/.github/workflows/.build.yml@v2
+    uses: kungfu-systems/buildchain/.github/workflows/build.yml@v2
     with:
       runner-preset: kungfu-v4-self-hosted
-      buildchain-contract-lock-path: buildchain.contract-lock.json
+      buildchain-alpha-contract-lock-path: buildchain.alpha-contract-lock.json
+      buildchain-stable-contract-lock-path: buildchain.contract-lock.json
       buildchain-contract-drift-issue-mode: compatible-and-breaking
       artifact-transfer-mode: s3-to-github-artifacts
       checkout-cache-mode: auto

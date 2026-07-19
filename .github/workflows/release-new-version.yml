@@ -41,6 +41,12 @@ jobs:
       publish-dist-tag: ${{ startsWith(github.ref_name, 'alpha/') && 'alpha' || 'latest' }}
       publish-package-set-order: platforms-first-main-last
       publish-package-main: '@kungfu-tech/libnode'
+      publication-auto-admission: true
+      publication-auto-no-gate: true
+      publication-publisher-workflow-path: .github/workflows/release-new-version.yml
+      publication-product: Libnode
+      publication-target: npm:@kungfu-tech/libnode
+      publication-package-name: '@kungfu-tech/libnode'
       release-passport-product-name: Libnode
       release-passport-kfd-1-witness-jsons: .buildchain/kfd-1/libnode-contract-world.witness.json
       release-passport-kfd-2-claim-jsons: .buildchain/kfd-2/public-release-trust.claim.json

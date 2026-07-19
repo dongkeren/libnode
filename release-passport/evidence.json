@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "version": "22.22.3-kf.3-alpha.19",
+  "channel": "alpha",
+  "source_sha": "a1fb27be0033230439621b35d0d70d7e054c03dc",
+  "release_sha": "a1fb27be0033230439621b35d0d70d7e054c03dc",
+  "target_ref": "alpha/v22/v22.22",
+  "release_material_sha": "a1fb27be0033230439621b35d0d70d7e054c03dc",
+  "publish_tooling_sha": "a1fb27be0033230439621b35d0d70d7e054c03dc",
+  "artifacts": [
+    {
+      "group": "libnode",
+      "kind": "npm",
+      "name": "@kungfu-tech/libnode-darwin-arm64",
+      "ref": "22.22.3-kf.3-alpha.19",
+      "digest": "sha512-3NffIglLrxefg2DbgPrr8m1hSFxdja6LLPHh4bJn2c0Cap0At58tCTE4ZPwuqHHEhzf/SQb44lZe2VxrCAzsnA==",
+      "role": "platform",
+      "required": true
+    },
+    {
+      "group": "libnode",
+      "kind": "npm",
+      "name": "@kungfu-tech/libnode-linux-x64",
+      "ref": "22.22.3-kf.3-alpha.19",
+      "digest": "sha512-4+cvyTSEoA89n23WhvLnmB3BfNB15yDTi8VZ96zK6fbc8ImLIykj2kfmfUrYfFUxjq6h2CoOc4qFlk6Zx3Qr2Q==",
+      "role": "platform",
+      "required": true
+    },
+    {
+      "group": "libnode",
+      "kind": "npm",
+      "name": "@kungfu-tech/libnode-win32-x64",
+      "ref": "22.22.3-kf.3-alpha.19",
+      "digest": "sha512-eW9lcXMEz2luldECsdZbJDuELT4mNtX7BF9xs2882+uvUfSyi9HNa+jRIzcjrI7Dodp+PAewluZQjM8RzB65vA==",
+      "role": "platform",
+      "required": true
+    },
+    {
+      "group": "libnode",
+      "kind": "npm",
+      "name": "@kungfu-tech/libnode",
+      "ref": "22.22.3-kf.3-alpha.19",
+      "digest": "sha512-SjSGVIxVMVrwhM7bZX62vGd0OMRjJjTzgVzunN2MZS2nFK1Zdi8TmOsV9cizH0N2Pnh9L6dYkwV+STfcRjImcA==",
+      "role": "main",
+      "required": true
+    }
+  ]
+}

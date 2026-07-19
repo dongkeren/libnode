@@ -5,6 +5,7 @@ on:
     branches:
       - alpha/v*/v*.*
       - release/v*/v*.*
+  workflow_dispatch:
 
 permissions:
   actions: read

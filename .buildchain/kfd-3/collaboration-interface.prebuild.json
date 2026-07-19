@@ -11,7 +11,7 @@
   "sourceRegistry": {
     "id": "libnode-release-contract",
     "path": "libnode.release.json",
-    "version": "22.22.3-kf.3-alpha.19"
+    "version": "22.22.3-kf.3-alpha.20"
   },
   "collaborationInterfaceDigest": "sha256:da72832c4fee28021f90381b86ed94ccf6d8bddcb23b80419d256e5a9e4bb653",
   "collaborationInterface": {

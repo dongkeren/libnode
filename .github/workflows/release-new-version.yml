@@ -19,12 +19,13 @@ concurrency:
 
 jobs:
   promote:
-    uses: kungfu-systems/buildchain/.github/workflows/release-candidate-promote.yml@v2
+    uses: kungfu-systems/buildchain/.github/workflows/release-candidate-promote.yml@v2-alpha
     secrets: inherit
     with:
       package-manager: pnpm
-      buildchain-ref: ${{ startsWith(github.ref_name, 'alpha/') && 'v2-alpha' || 'v2' }}
-      buildchain-contract-lock-path: ${{ startsWith(github.ref_name, 'alpha/') && 'buildchain.alpha-contract-lock.json' || 'buildchain.contract-lock.json' }}
+      buildchain-channel: auto
+      buildchain-alpha-contract-lock-path: buildchain.alpha-contract-lock.json
+      buildchain-stable-contract-lock-path: buildchain.contract-lock.json
       buildchain-contract-drift-issue-mode: compatible-and-breaking
       artifact-name: libnode
       release-candidate-workflow-file: ${{ startsWith(github.ref_name, 'release/') && 'release-verify.yaml' || 'build.yml' }}

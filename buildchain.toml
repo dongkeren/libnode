@@ -5,6 +5,10 @@ required = true
 strategy = "anchored"
 next = "manual"
 manifest = "libnode.release.json"
+derived_files = [
+  ".buildchain/kfd-1/libnode-contract-world.witness.json",
+  ".buildchain/kfd-3/collaboration-interface.prebuild.json",
+]
 
 [[version.files]]
 type = "json"
@@ -64,6 +68,10 @@ commands = [
   "node .gyp/run-with-env.js KF_SKIP_MAKE_LIBNODE=true -- corepack pnpm build",
   "corepack pnpm package",
 ]
+
+[lifecycle.version-state]
+timeout_minutes = 10
+command = "corepack pnpm sync-kfd-witnesses"
 
 [lifecycle.verify]
 timeout_minutes = 10

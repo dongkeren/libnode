@@ -60,7 +60,7 @@
     "treeEquivalent": true,
     "publishToolingSha": "ff77155f2f608801d1f4087e354cc237beb50620",
     "releaseStateRef": "refs/heads/buildchain/release-state/22-22-3-kf-4",
-    "releaseStateSha": "",
+    "releaseStateSha": "2282a764fce7e94f04733d3817bf403002cb0143",
     "package": {
       "name": "@kungfu-tech/libnode",
       "version": "22.22.3-kf.4"

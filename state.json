@@ -8,18 +8,18 @@
   "release_material_sha": "ff77155f2f608801d1f4087e354cc237beb50620",
   "publish_tooling_sha": "ff77155f2f608801d1f4087e354cc237beb50620",
   "version": "22.22.3-kf.4",
-  "exact_tag": "v22.22.0",
+  "exact_tag": "v22.22.1",
   "channel": "release",
   "line": "v22.22",
   "version_strategy": "",
   "lifecycle_identity": "lifecycle.publish",
   "state_ref": "buildchain/release-state/22-22-3-kf-4",
-  "state_path": "/home/runner/work/libnode/libnode/.buildchain/release-state/v22.22.0.json",
-  "evidence_path": "/home/runner/work/libnode/libnode/.buildchain/release-evidence/v22.22.0/evidence.json",
+  "state_path": ".buildchain/release-state/v22.22.1.json",
+  "evidence_path": ".buildchain/release-evidence/v22.22.1/evidence.json",
   "state": "finalizing",
   "previous_state": "published",
   "actor": "kungfu-origin",
-  "run_id": "29855469977",
+  "run_id": "29861917542",
   "superseded_by": "",
   "failure": "",
   "artifacts": [
@@ -65,5 +65,5 @@
     ".buildchain/release-evidence/v22.22.0/dist-tag-evidence.json"
   ],
   "created_at": "2026-07-21T18:05:22.561Z",
-  "updated_at": "2026-07-21T18:06:14.573Z"
+  "updated_at": "2026-07-21T19:34:40.033Z"
 }

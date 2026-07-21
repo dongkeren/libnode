@@ -92,8 +92,13 @@ function listTarballDetails(file) {
     if (entryStart === -1) continue;
 
     let entry = line.slice(entryStart).trim();
-    const linkTarget = entry.indexOf(' -> ');
-    if (linkTarget !== -1) entry = entry.slice(0, linkTarget);
+    for (const separator of [' -> ', ' link to ']) {
+      const linkTarget = entry.indexOf(separator);
+      if (linkTarget !== -1) {
+        entry = entry.slice(0, linkTarget);
+        break;
+      }
+    }
     details.set(entry, { type: line[0] });
   }
   return details;
@@ -105,6 +110,7 @@ function verifyPlatformTarballPayload(pkg) {
 
   const entries = listTarballEntries(pkg.file);
   const details = listTarballDetails(pkg.file);
+  const scripts = pkg.packageJson.scripts || {};
   for (const pattern of requirements.binaries) {
     if (!entries.some((entry) => pattern.test(entry))) {
       throw new Error(`${packageKey(pkg)} is missing required binary matching ${pattern}`);
@@ -116,9 +122,15 @@ function verifyPlatformTarballPayload(pkg) {
       throw new Error(`${packageKey(pkg)} is missing alias helper ${alias.helper}`);
     }
 
+    if (scripts.postinstall !== 'node ensure-libnode-aliases.js') {
+      throw new Error(`${packageKey(pkg)} must reconstruct libnode aliases from postinstall`);
+    }
+
     const target = details.get(alias.target);
-    if (target && target.type !== 'l') {
-      throw new Error(`${packageKey(pkg)} must not package ${alias.target} as a full binary copy`);
+    if (target) {
+      throw new Error(
+        `${packageKey(pkg)} must not package ${alias.target}; npm install must materialize it from ${alias.helper}`,
+      );
     }
   }
 
@@ -176,6 +188,7 @@ function packageFromTarball(file) {
     file,
     name,
     version,
+    packageJson,
     integrity: tarballIntegrity(file),
     main: name === mainPackageName,
     optionalDependencies: packageJson.optionalDependencies || {},

@@ -5,6 +5,10 @@ required = true
 strategy = "anchored"
 next = "manual"
 manifest = "libnode.release.json"
+derived_files = [
+  ".buildchain/kfd-1/libnode-contract-world.witness.json",
+  ".buildchain/kfd-3/collaboration-interface.prebuild.json",
+]
 
 [[version.files]]
 type = "json"
@@ -27,6 +31,28 @@ main_package = "@kungfu-tech/libnode"
 [lifecycle.env]
 KF_SKIP_FALLBACK_BUILD = "true"
 KF_COMPILER_CACHE = "auto"
+KF_WINDOWS_PYTHON_EXE = "C:/Users/dkr/AppData/Local/Programs/Python/Python314/python.exe"
+
+[diagnostics.native]
+enabled = true
+sample_process_tree = true
+compiler_cache = "auto"
+expected_tools = ["node", "pnpm", "git", "python", "make", "cmake", "ninja", "ccache", "sccache", "clang", "cl"]
+artifact_dirs = ["dist/node", "build/Release", "build/stage", "build/npm", "node/out/Release"]
+cache_dirs = [
+  "/Users/gha-runner/.cache/kungfu/build-cache/ccache/libnode/darwin-arm64",
+  "/Users/gha-runner/.cache/kungfu/build-cache/sccache/libnode/darwin-arm64",
+  "/home/gha-runner/.cache/kungfu/build-cache/ccache/libnode/linux-x64",
+  "/home/gha-runner/.cache/kungfu/build-cache/sccache/libnode/linux-x64",
+  "/home/runner/.cache/kungfu/build-cache/ccache/libnode/linux-x64",
+  "/home/runner/.cache/kungfu/build-cache/sccache/libnode/linux-x64",
+  "/data/actions-runner/.cache/kungfu/build-cache/ccache/libnode/linux-x64",
+  "/data/actions-runner/.cache/kungfu/build-cache/sccache/libnode/linux-x64",
+  "C:/Users/gha-runner/AppData/Local/Kungfu/build-cache/ccache/libnode/win32-x64",
+  "C:/Users/gha-runner/AppData/Local/Kungfu/build-cache/sccache/libnode/win32-x64",
+  "C:/Users/runneradmin/AppData/Local/Kungfu/build-cache/ccache/libnode/win32-x64",
+  "C:/Users/runneradmin/AppData/Local/Kungfu/build-cache/sccache/libnode/win32-x64",
+]
 
 [lifecycle.install]
 timeout_minutes = 10
@@ -38,18 +64,24 @@ commands = [
 [lifecycle.build]
 timeout_minutes = 240
 commands = [
-  "corepack pnpm build",
+  "corepack pnpm make",
+  "node .gyp/run-with-env.js KF_SKIP_MAKE_LIBNODE=true -- corepack pnpm build",
   "corepack pnpm package",
 ]
+
+[lifecycle.version-state]
+timeout_minutes = 10
+command = "corepack pnpm sync-kfd-witnesses"
 
 [lifecycle.verify]
 timeout_minutes = 10
 commands = [
   "corepack pnpm verify-release",
+  "corepack pnpm verify-kfd-witnesses",
   "corepack pnpm verify-package-source",
   "git diff --check",
 ]
 
 [lifecycle.publish]
 timeout_minutes = 20
-command = "node .gyp/npm-publish-tarballs.js github-artifacts"
+command = "node .gyp/npm-publish-tarballs.js .buildchain/release-candidate/payloads"

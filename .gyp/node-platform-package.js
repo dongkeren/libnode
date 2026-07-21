@@ -113,7 +113,7 @@ function verifyPlatformDist(descriptor) {
   };
 }
 
-function linkPackageAliases(packageDistDir, descriptor) {
+function ensurePackageAliasesAreMaterializable(packageDistDir, descriptor) {
   for (const alias of descriptor.aliases || []) {
     const source = listFiles(packageDistDir, alias.source)
       .filter((file) => path.basename(file) !== alias.target)
@@ -126,7 +126,9 @@ function linkPackageAliases(packageDistDir, descriptor) {
 
     const target = path.join(packageDistDir, alias.target);
     fs.removeSync(target);
-    fs.symlinkSync(path.basename(source), target);
+    // npm pack drops symlink entries and the public npm registry rejects
+    // hardlinks. Platform packages therefore reconstruct aliases at install
+    // time via ensure-libnode-aliases.js instead of shipping link entries.
   }
 }
 
@@ -276,7 +278,7 @@ function preparePlatformPackage(descriptor) {
   fs.copySync(distDir, packageDistDir, {
     dereference: false,
   });
-  linkPackageAliases(packageDistDir, descriptor);
+  ensurePackageAliasesAreMaterializable(packageDistDir, descriptor);
   copyIfExists(path.join(rootDir, 'LICENSE'), path.join(packageRoot, 'LICENSE'));
   copyIfExists(path.join(rootDir, 'libnode.release.json'), path.join(packageRoot, 'libnode.release.json'));
   writePackageReadme(packageRoot, descriptor.name, `This package contains libnode binaries for ${descriptor.key}.`);

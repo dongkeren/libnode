@@ -122,21 +122,38 @@ function usableReferencePath() {
   return '';
 }
 
+function useReferenceAlternates(referencePath) {
+  if (!referencePath) return;
+  const referenceObjects = output('git', ['-C', referencePath, 'rev-parse', '--git-path', 'objects']);
+  if (!referenceObjects) return;
+  const referenceObjectsPath = path.isAbsolute(referenceObjects)
+    ? referenceObjects
+    : path.resolve(referencePath, referenceObjects);
+  const alternates = output('git', ['-C', nodeSrcDir, 'rev-parse', '--git-path', 'objects/info/alternates']);
+  if (!alternates) return;
+  const alternatesPath = path.isAbsolute(alternates) ? alternates : path.resolve(nodeSrcDir, alternates);
+  fs.mkdirSync(path.dirname(alternatesPath), { recursive: true });
+  fs.writeFileSync(alternatesPath, `${referenceObjectsPath}\n`);
+}
+
 function updateFrom(url, referencePath) {
   prepareGitNetworkEnv(url);
   configureSubmodule(url);
 
   if (!currentNodeHead()) {
-    const cloneArgs = ['clone', '--no-checkout', '--progress'];
-    if (referencePath) {
-      cloneArgs.push('--reference', referencePath);
-    }
-    cloneArgs.push(url, 'node');
-    const cloneResult = run('git', cloneArgs, { check: false });
-    if (cloneResult.status !== 0) {
-      console.warn(`node clone failed from ${url}`);
+    fs.mkdirSync(nodeSrcDir, { recursive: true });
+    const initResult = run('git', ['-C', nodeSrcDir, 'init'], { check: false });
+    if (initResult.status !== 0) {
+      console.warn(`node git init failed for ${url}`);
       return false;
     }
+    run('git', ['-C', nodeSrcDir, 'remote', 'remove', 'origin'], { check: false });
+    const remoteResult = run('git', ['-C', nodeSrcDir, 'remote', 'add', 'origin', url], { check: false });
+    if (remoteResult.status !== 0) {
+      console.warn(`node remote setup failed for ${url}`);
+      return false;
+    }
+    useReferenceAlternates(referencePath);
   } else {
     run('git', ['-C', nodeSrcDir, 'remote', 'set-url', 'origin', url], { check: false });
   }
@@ -147,6 +164,7 @@ function updateFrom(url, referencePath) {
       '-C',
       nodeSrcDir,
       'fetch',
+      '--depth=1',
       '--tags',
       '--force',
       '--progress',

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "contract": "kungfu-buildchain-release-check-report",
+  "checkedAt": "2026-07-21T20:27:14.982Z",
+  "ok": true,
+  "trust": "pass",
+  "surfaceImpactRequirement": {
+    "required": true,
+    "type": "production-release",
+    "reason": "production release passports require surfaceImpacts[] so agents can audit the final version impact",
+    "channel": "release",
+    "targetRef": "release/v22/v22.22"
+  },
+  "completeness": {
+    "artifactCount": 4,
+    "evidenceArtifactCount": 4,
+    "packageSetPresent": true,
+    "trustedPublishingPresent": true,
+    "transactionPresent": true,
+    "anchorManifestPresent": true,
+    "buildSummaryPresent": true,
+    "platformArtifactManifestCount": 3,
+    "distTagPromotionEvidencePresent": true,
+    "impactPresent": true,
+    "agentIndexPresent": true,
+    "productMechanismPresent": true,
+    "surfaceImpactsRequired": true,
+    "surfaceImpactCount": 1,
+    "versionImpact": "patch"
+  },
+  "issues": [
+    {
+      "level": "warning",
+      "code": "kfd-2.claims[2].downgraded",
+      "message": "public release claim is downgraded and needs human review",
+      "details": {
+        "id": "claim:libnode-public-release-trust",
+        "proseOnly": false
+      }
+    },
+    {
+      "level": "warning",
+      "code": "kfd-2.status",
+      "message": "kfd-2 release trust passport audit is downgraded by prose-only or residual-risk claims",
+      "details": {}
+    }
+  ]
+}

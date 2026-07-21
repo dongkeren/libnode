@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "contract": "kungfu-buildchain-impact",
+  "release": {
+    "tag": "v22.22.3-kf.4",
+    "line": "v22.22",
+    "version": "22.22.3-kf.4"
+  },
+  "versionImpact": {
+    "final": "patch",
+    "source": "release-candidate-tree-equivalence",
+    "rationale": "Buildchain verified that stable publication uses the exact tree already qualified as the release candidate."
+  },
+  "surfaceImpacts": [
+    {
+      "id": "release-candidate-stable-finalization",
+      "impact": "patch",
+      "class": "release-governance",
+      "rationale": "Stable finalization changes release authority and evidence only; the qualified release-candidate tree is unchanged.",
+      "source": "release-candidate-passport:6ba5e6dc85ad009726eab2b070a8c3500ae26438a10321ff05d0da4ec579c25a"
+    }
+  ],
+  "classification": "patch",
+  "breaking": false,
+  "migrationRequired": false,
+  "summary": "Tree-equivalent release-candidate promotion to the stable publication channel."
+}

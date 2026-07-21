@@ -1,27 +1,12 @@
 {
   "schema": 1,
-  "id": "8281e3a06fe3bbff019931ea8333af049614d6d156deb7227733efcde4cee7bf",
-  "repository": "kungfu-systems/libnode",
-  "target_ref": "release/v22/v22.22",
+  "version": "22.22.3-kf.4",
+  "channel": "release",
   "source_sha": "ff77155f2f608801d1f4087e354cc237beb50620",
   "release_sha": "ff77155f2f608801d1f4087e354cc237beb50620",
+  "target_ref": "release/v22/v22.22",
   "release_material_sha": "ff77155f2f608801d1f4087e354cc237beb50620",
   "publish_tooling_sha": "ff77155f2f608801d1f4087e354cc237beb50620",
-  "version": "22.22.3-kf.4",
-  "exact_tag": "v22.22.0",
-  "channel": "release",
-  "line": "v22.22",
-  "version_strategy": "",
-  "lifecycle_identity": "lifecycle.publish",
-  "state_ref": "buildchain/release-state/22-22-3-kf-4",
-  "state_path": "/home/runner/work/libnode/libnode/.buildchain/release-state/v22.22.0.json",
-  "evidence_path": "/home/runner/work/libnode/libnode/.buildchain/release-evidence/v22.22.0/evidence.json",
-  "state": "published",
-  "previous_state": "publishing",
-  "actor": "kungfu-origin",
-  "run_id": "29855469977",
-  "superseded_by": "",
-  "failure": "",
   "artifacts": [
     {
       "group": "libnode",
@@ -59,11 +44,5 @@
       "role": "main",
       "required": true
     }
-  ],
-  "evidence": [
-    ".buildchain/release-evidence/v22.22.0/evidence.json",
-    ".buildchain/release-evidence/v22.22.0/dist-tag-evidence.json"
-  ],
-  "created_at": "2026-07-21T18:05:22.561Z",
-  "updated_at": "2026-07-21T18:06:11.994Z"
+  ]
 }

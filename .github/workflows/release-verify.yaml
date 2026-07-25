@@ -8,6 +8,7 @@ on:
       - release/v*/v*.*
 
 permissions:
+  actions: read
   contents: read
   issues: write
   id-token: write

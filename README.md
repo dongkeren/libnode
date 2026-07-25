@@ -12,7 +12,8 @@ npm install @kungfu-tech/libnode
 
 The main package resolves the matching platform package installed through npm
 optional dependencies, such as `@kungfu-tech/libnode-darwin-arm64`,
-`@kungfu-tech/libnode-linux-x64`, or `@kungfu-tech/libnode-win32-x64`.
+`@kungfu-tech/libnode-linux-x64`, `@kungfu-tech/libnode-linux-arm64`, or
+`@kungfu-tech/libnode-win32-x64`.
 
 ### Compile and Link
 
@@ -31,6 +32,9 @@ node -p "require('@kungfu-tech/libnode').include"
 ## Build with GitHub Actions
 
 The `Build` workflow runs through Kungfu Buildchain and builds the Node.js version pinned by `libnode.release.json` and `.gitmodules`. Each runner packages its native output as an npm platform tarball under `build/stage/npm`.
+Linux ARM64 is built on the native GitHub-hosted `ubuntu-24.04-arm` runner and
+participates in the same source lock, artifact summary, and release passport as
+the other supported platforms.
 
 Npm publication is handled by Buildchain release-candidate promotion. Reviewed
 channel PRs build the release candidate once and upload the platform package

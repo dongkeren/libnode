@@ -28,6 +28,14 @@ const platformPackages = [
     aliases: [{ source: 'libnode.so.*', match: '^libnode\\.so\\.\\d+$', target: 'libnode.so' }],
   },
   {
+    key: 'linux-arm64',
+    name: '@kungfu-tech/libnode-linux-arm64',
+    os: ['linux'],
+    cpu: ['arm64'],
+    binaries: ['libnode.so*'],
+    aliases: [{ source: 'libnode.so.*', match: '^libnode\\.so\\.\\d+$', target: 'libnode.so' }],
+  },
+  {
     key: 'win32-x64',
     name: '@kungfu-tech/libnode-win32-x64',
     os: ['win32'],

@@ -10,12 +10,12 @@
   "contractWorld": {
     "id": "libnode-release-contract",
     "schemaId": "https://kfd.libkungfu.dev/schemas/kfd-1/contract-world.schema.json",
-    "digest": "sha256:b30f9d551fc53f1ed945f7fb896490277804c1a93067e5384212fef9e9408df6"
+    "digest": "sha256:c29741c757402b17ff91b026899c8ba91a9a4d9f58ccf817848b4cf7ef7d7bcf"
   },
   "standardContract": {
     "id": "libnode-release-contract",
     "path": "libnode.release.json",
-    "sha256": "b30f9d551fc53f1ed945f7fb896490277804c1a93067e5384212fef9e9408df6"
+    "sha256": "c29741c757402b17ff91b026899c8ba91a9a4d9f58ccf817848b4cf7ef7d7bcf"
   },
   "selfHostingBoundary": {
     "mode": "self-hosted-standard-contract",
@@ -33,17 +33,17 @@
     {
       "name": "package-manifest",
       "sourcePath": "package.json",
-      "sourceSha256": "fa208a571d294ed35f1c5689b186be58f6bfefa08f6e4e049f393ea632d6c4d9",
+      "sourceSha256": "835c764e2412cbe214ec992ebcecbd0e5649adce373e8a14b8374084646387ab",
       "artifactPath": "package.json",
-      "expectedSha256": "fa208a571d294ed35f1c5689b186be58f6bfefa08f6e4e049f393ea632d6c4d9",
+      "expectedSha256": "835c764e2412cbe214ec992ebcecbd0e5649adce373e8a14b8374084646387ab",
       "byteForByte": true
     },
     {
       "name": "release-manifest",
       "sourcePath": "libnode.release.json",
-      "sourceSha256": "b30f9d551fc53f1ed945f7fb896490277804c1a93067e5384212fef9e9408df6",
+      "sourceSha256": "c29741c757402b17ff91b026899c8ba91a9a4d9f58ccf817848b4cf7ef7d7bcf",
       "artifactPath": "libnode.release.json",
-      "expectedSha256": "b30f9d551fc53f1ed945f7fb896490277804c1a93067e5384212fef9e9408df6",
+      "expectedSha256": "c29741c757402b17ff91b026899c8ba91a9a4d9f58ccf817848b4cf7ef7d7bcf",
       "byteForByte": true
     },
     {
@@ -57,9 +57,9 @@
     {
       "name": "package-builder",
       "sourcePath": ".gyp/node-platform-package.js",
-      "sourceSha256": "7871e2dc7240ebf69de06b4016c7715417d3273f3b0231b5f0459e5dd8b94bea",
+      "sourceSha256": "e457328484352bb48404872dad0a6747bfdfb78c67dbb1d8f0cd5d93ae5fecd4",
       "artifactPath": ".gyp/node-platform-package.js",
-      "expectedSha256": "7871e2dc7240ebf69de06b4016c7715417d3273f3b0231b5f0459e5dd8b94bea",
+      "expectedSha256": "e457328484352bb48404872dad0a6747bfdfb78c67dbb1d8f0cd5d93ae5fecd4",
       "byteForByte": true
     },
     {
@@ -73,33 +73,33 @@
     {
       "name": "kfd3-artifact-verifier",
       "sourcePath": ".gyp/libnode-kfd3-artifact-verify.js",
-      "sourceSha256": "a6a15fe9a54b02dd2cc78a69300ad9af3fa7ce7c6bcab652e6c6049198ddc172",
+      "sourceSha256": "783b329aeaa4b2196db5c754ff2c8ac247467af8655d8caba52755e5e88677ba",
       "artifactPath": ".gyp/libnode-kfd3-artifact-verify.js",
-      "expectedSha256": "a6a15fe9a54b02dd2cc78a69300ad9af3fa7ce7c6bcab652e6c6049198ddc172",
+      "expectedSha256": "783b329aeaa4b2196db5c754ff2c8ac247467af8655d8caba52755e5e88677ba",
       "byteForByte": true
     },
     {
       "name": "release-workflow",
       "sourcePath": ".github/workflows/release-new-version.yml",
-      "sourceSha256": "a7bc52b1c868edda17499f204ab43f8b9bc5a74daf25c2f0eb2b08fbf859e1d2",
+      "sourceSha256": "91b87a6248668d93498af626d038df5925363d31393518c01ddbfdf5ae83ff4d",
       "artifactPath": ".github/workflows/release-new-version.yml",
-      "expectedSha256": "a7bc52b1c868edda17499f204ab43f8b9bc5a74daf25c2f0eb2b08fbf859e1d2",
+      "expectedSha256": "91b87a6248668d93498af626d038df5925363d31393518c01ddbfdf5ae83ff4d",
       "byteForByte": true
     },
     {
       "name": "kfd3-collaboration-interface",
       "sourcePath": ".buildchain/kfd-3/collaboration-interface.json",
-      "sourceSha256": "da72832c4fee28021f90381b86ed94ccf6d8bddcb23b80419d256e5a9e4bb653",
+      "sourceSha256": "bbdfc87c532fe50fca92ca8415fc624af95c79fa7c9a4825efcee233701bd8c8",
       "artifactPath": ".buildchain/kfd-3/collaboration-interface.json",
-      "expectedSha256": "da72832c4fee28021f90381b86ed94ccf6d8bddcb23b80419d256e5a9e4bb653",
+      "expectedSha256": "bbdfc87c532fe50fca92ca8415fc624af95c79fa7c9a4825efcee233701bd8c8",
       "byteForByte": true
     },
     {
       "name": "kfd3-prebuild-witness",
       "sourcePath": ".buildchain/kfd-3/collaboration-interface.prebuild.json",
-      "sourceSha256": "042adc7a140d4359c191b3c28c84f55a9192cd35fa3a1c5ad039be0f6fccf319",
+      "sourceSha256": "c7ae8d49e97e9b99c7393dbec05c63f0a038f20d76928a7b170e5b6d0fee1626",
       "artifactPath": ".buildchain/kfd-3/collaboration-interface.prebuild.json",
-      "expectedSha256": "042adc7a140d4359c191b3c28c84f55a9192cd35fa3a1c5ad039be0f6fccf319",
+      "expectedSha256": "c7ae8d49e97e9b99c7393dbec05c63f0a038f20d76928a7b170e5b6d0fee1626",
       "byteForByte": true
     }
   ]

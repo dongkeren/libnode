@@ -15,7 +15,8 @@ const payloadRoot = path.resolve(
 const packageNames = {
   main: '@kungfu-tech/libnode',
   darwin: '@kungfu-tech/libnode-darwin-arm64',
-  linux: '@kungfu-tech/libnode-linux-x64',
+  linuxX64: '@kungfu-tech/libnode-linux-x64',
+  linuxArm64: '@kungfu-tech/libnode-linux-arm64',
   windows: '@kungfu-tech/libnode-win32-x64',
 };
 
@@ -135,13 +136,15 @@ function main() {
   const files = {
     main: findPackageTarball(packageNames.main),
     darwin: findPackageTarball(packageNames.darwin),
-    linux: findPackageTarball(packageNames.linux),
+    linuxX64: findPackageTarball(packageNames.linuxX64),
+    linuxArm64: findPackageTarball(packageNames.linuxArm64),
     windows: findPackageTarball(packageNames.windows),
   };
 
   verifyMainPackage(files.main);
   verifyDarwinPackage(files.darwin);
-  verifyLinuxPackage(files.linux);
+  verifyLinuxPackage(files.linuxX64);
+  verifyLinuxPackage(files.linuxArm64);
   verifyWindowsPackage(files.windows);
 
   const digests = Object.fromEntries(Object.entries(files).map(([key, file]) => [key, `sha256:${sha256File(file)}`]));
@@ -188,6 +191,12 @@ function main() {
       surface(
         'npm:platform-linux-x64',
         '@kungfu-tech/libnode-linux-x64 package',
+        'platform-package',
+        '.gyp/node-platform-package.js',
+      ),
+      surface(
+        'npm:platform-linux-arm64',
+        '@kungfu-tech/libnode-linux-arm64 package',
         'platform-package',
         '.gyp/node-platform-package.js',
       ),

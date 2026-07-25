@@ -11,13 +11,13 @@
   "sourceRegistry": {
     "id": "libnode-release-contract",
     "path": "libnode.release.json",
-    "version": "22.22.3-kf.3-alpha.21"
+    "version": "22.22.3-kf.3-alpha.22"
   },
-  "collaborationInterfaceDigest": "sha256:da72832c4fee28021f90381b86ed94ccf6d8bddcb23b80419d256e5a9e4bb653",
+  "collaborationInterfaceDigest": "sha256:bbdfc87c532fe50fca92ca8415fc624af95c79fa7c9a4825efcee233701bd8c8",
   "collaborationInterface": {
     "schemaVersion": 1,
     "contract": "kfd-3-collaboration-interface",
-    "digest": "sha256:da72832c4fee28021f90381b86ed94ccf6d8bddcb23b80419d256e5a9e4bb653",
+    "digest": "sha256:bbdfc87c532fe50fca92ca8415fc624af95c79fa7c9a4825efcee233701bd8c8",
     "product": {
       "name": "Libnode",
       "package": "@kungfu-tech/libnode",

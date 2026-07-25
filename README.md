@@ -12,7 +12,8 @@ npm install @kungfu-tech/libnode
 
 The main package resolves the matching platform package installed through npm
 optional dependencies, such as `@kungfu-tech/libnode-darwin-arm64`,
-`@kungfu-tech/libnode-linux-x64`, or `@kungfu-tech/libnode-win32-x64`.
+`@kungfu-tech/libnode-linux-x64`, `@kungfu-tech/libnode-linux-arm64`, or
+`@kungfu-tech/libnode-win32-x64`.
 
 ### Compile and Link
 

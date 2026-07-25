@@ -15,6 +15,10 @@ const platformPackageRequirements = {
     binaries: [/^package\/dist\/node\/libnode\.so\.\d+$/],
     aliases: [{ target: 'package/dist/node/libnode.so', helper: 'package/ensure-libnode-aliases.js' }],
   },
+  '@kungfu-tech/libnode-linux-arm64': {
+    binaries: [/^package\/dist\/node\/libnode\.so\.\d+$/],
+    aliases: [{ target: 'package/dist/node/libnode.so', helper: 'package/ensure-libnode-aliases.js' }],
+  },
   '@kungfu-tech/libnode-win32-x64': {
     binaries: [/^package\/dist\/node\/libnode.*\.dll$/i, /^package\/dist\/node\/libnode.*\.lib$/i],
   },

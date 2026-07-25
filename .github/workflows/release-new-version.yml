@@ -34,9 +34,10 @@ jobs:
       artifact-patterns: |
         libnode-macos-arm64-*
         libnode-linux-x64-*
+        libnode-linux-arm64-*
         libnode-windows-x64-*
       required-status-check: build
-      required-artifact-count: 3
+      required-artifact-count: 4
       publish-mode: publish-final-version
       publish-dist-tag: ${{ startsWith(github.ref_name, 'alpha/') && 'alpha' || 'latest' }}
       publish-package-set-order: platforms-first-main-last

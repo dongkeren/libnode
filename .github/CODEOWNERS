@@ -1,4 +1,5 @@
 # GitHub review and governance authority.
+# Protected content pushes and CODEOWNER approvals must use distinct identities.
 * @kungfu-origin
 
 # Last-match rules make authority and publication control surfaces explicit.

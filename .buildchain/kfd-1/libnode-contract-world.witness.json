@@ -49,9 +49,9 @@
     {
       "name": "buildchain-config",
       "sourcePath": "buildchain.toml",
-      "sourceSha256": "cbac4d504308285a41dd04482b8aab18238481e641c74d1f3c0f47b6652a9ef7",
+      "sourceSha256": "136f62bda0b88a084878b67821940ed2d1f5c124096d2a7bf75b114362db3eb9",
       "artifactPath": "buildchain.toml",
-      "expectedSha256": "cbac4d504308285a41dd04482b8aab18238481e641c74d1f3c0f47b6652a9ef7",
+      "expectedSha256": "136f62bda0b88a084878b67821940ed2d1f5c124096d2a7bf75b114362db3eb9",
       "byteForByte": true
     },
     {
